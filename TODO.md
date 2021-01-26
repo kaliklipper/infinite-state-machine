@@ -2,7 +2,7 @@
 ===============
 - [ ] Create ISM functions
   * [ ] Import action pack
-  * [ ] Import settings from file
+  * [x] Import settings from file
 
 # Action Packs
 - [ ] Define core action pack
@@ -10,3 +10,5 @@
     * [ ] Timers
 - [ ] Establish convention for importing SQL statements
 
+# Unit Tests
+- [x] Test framework for ISM
