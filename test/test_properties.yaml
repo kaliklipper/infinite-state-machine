@@ -1,2 +1,8 @@
-dictionary:
-  test_key: test_value
+database:
+  rdbms: sqlite3
+  db_name: ism_db
+
+runtime:
+  root_dir: /tmp/ism
+  use_tags: true
+  stamp_format: epoch_milliseconds
