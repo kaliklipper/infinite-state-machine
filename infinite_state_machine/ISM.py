@@ -39,20 +39,20 @@ class InfiniteStateMachine:
     """
 
     dao = None
-    props_file = ""
+    properties_file = None
     properties = None
-    run_root = None
-    run_timestamp = None
 
-    def __init__(self, props_file, tag='default'):
+    def __init__(self, *args):
         """
         :param props_file:
             Fully qualified path to the properties file
         """
-        self.props_file = props_file
-        self.tag = tag
-        self.__get_properties()
-        self.run_timestamp = self.__create_run_timestamp()
+        self.properties_file = args[0]['properties_file']
+        self.properties = self.__get_properties()
+        self.properties['database']['password'] = args[0].get('database', {}).get('password', None)
+        self.properties['database']['db_path'] = None
+        self.properties['runtime']['run_timestamp'] = self.__create_run_timestamp()
+        self.properties['runtime']['tag'] = args[0].get('tag', 'default')
         self.__create_runtime_environment()
         self.__create_db(self.properties['database']['rdbms'])
 
@@ -80,12 +80,12 @@ class InfiniteStateMachine:
         hold the database, runtime files and directories.
         """
         try:
-            self.run_root = f'{self.properties["runtime"]["root_dir"]}' \
+            self.properties["runtime"]["run_dir"] = f'{self.properties["runtime"]["root_dir"]}' \
                    f'{os.path.sep}' \
-                   f'{self.tag}' \
+                   f'{self.properties["runtime"]["tag"]}' \
                    f'{os.path.sep}' \
-                   f'{self.run_timestamp}'
-            os.makedirs(self.run_root)
+                   f'{self.properties["runtime"]["run_timestamp"]}'
+            os.makedirs(self.properties["runtime"]["run_dir"])
         except OSError as e:
             if e.errno != errno.EEXIST:
                 raise
@@ -94,34 +94,55 @@ class InfiniteStateMachine:
         """Route through to the correct RDBMS handler"""
         try:
             {
-                'sqlite3': self.__sqlite3,
-                'mysql': self.__mysql
-            }[rdbms]()
+                'sqlite3': self.__create_sqlite3,
+                'mysql': self.__create_mysql
+            }[rdbms.lower()]()
         except KeyError:
             raise RDBMSNotRecognised(f'RDBMS {rdbms} not recognised / supported')
+        except:
+            raise
 
     def __get_properties(self):
         """Read in the properties file passed into the constructor."""
-        with open(self.props_file) as file:
-            self.properties = yaml.safe_load(file)
+        with open(self.properties_file) as file:
+            return yaml.safe_load(file)
 
-    def __mysql(self):
-        pass
+    def __create_mysql(self):
 
-    def __sqlite3(self):
+        from ism_dal.mysql_dao import MySqlDAO
+        self.dao = MySqlDAO()
+        self.properties['database']['run_db'] = \
+            f'{self.properties["runtime"]["tag"]}_' \
+            f'{self.properties["runtime"]["run_timestamp"]}'
+        self.dao.create_database(self.properties)
+
+    def __create_sqlite3(self):
         """RDBMS set to SQLITE3
 
         Create the SQLITE3 database object and record the path to it.
         """
-        from ism_dal.sqlite3_dao import Sqlite3
+        from ism_dal.sqlite3_dao import Sqlite3DAO
 
-        db_dir = f'{self.run_root}{os.path.sep}database'
-        db_path = f'{db_dir}{os.path.sep}{self.properties["database"]["db_name"]}'
+        db_dir = f'{self.properties["runtime"]["run_dir"]}{os.path.sep}database'
+        self.properties['database']['db_path'] = \
+            f'{db_dir}{os.path.sep}{self.properties["database"]["db_name"]}'
         os.makedirs(db_dir)
-        self.dao = Sqlite3()
-        self.dao.create_database(db_path)
+        self.dao = Sqlite3DAO()
+        self.dao.create_database(self.properties['database']['db_path'])
 
     # Public methods
+    def get_db_path(self):
+        """Return the path to the database if set"""
+        return self.properties['database']['db_path']
+
+    def get_tag(self):
+        """Return the user tag for the runtime directories"""
+        return self.properties['runtime']['tag']
+
+    def set_tag(self, tag):
+        """Set the user tag for the runtime directories"""
+        self.properties['runtime']['tag'] = tag
+
     def run(self):
         """Iterates over the array of imported actions and calls each one's
         execute method.
@@ -129,3 +150,4 @@ class InfiniteStateMachine:
         Method executes in its own thread.
         """
         pass
+

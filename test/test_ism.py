@@ -21,24 +21,52 @@ class TestISM(unittest.TestCase):
 
     path_sep = os.path.sep
     dir = os.path.dirname(os.path.abspath(__file__))
-    props_path = f'{dir}{path_sep}test_properties.yaml'
+    sqlite3_properties = f'{dir}{path_sep}sqlite3_properties.yaml'
+    mysql_properties = f'{dir}{path_sep}mysql_properties.yaml'
 
     def test_properties_file_set(self):
         """Test that ISM sets path to the test file."""
-        ism = InfiniteStateMachine(self.props_path)
-        self.assertEqual(ism.props_file, self.props_path)
+        args = {
+            'properties_file': self.sqlite3_properties
+        }
+        ism = InfiniteStateMachine(args)
+        self.assertEqual(ism.properties_file, self.sqlite3_properties)
 
     def test_properties_are_read_in(self):
         """Test that it imports properties from the test file."""
-        ism = InfiniteStateMachine(self.props_path)
-        self.assertDictEqual(ism.properties['database'], {'rdbms': 'sqlite3', 'db_name': 'ism_db'})
+        args = {
+            'properties_file': self.sqlite3_properties
+        }
+        ism = InfiniteStateMachine(args)
+        self.assertEqual(
+            ism.properties['database']['password'],
+            None,
+            f'Unexpected result for database: key read from properties file ({self.sqlite3_properties})'
+        )
 
     def test_sqlite3_database_creation(self):
         """Test that the sqlite3 database is created.
 
         Implies that rdbms key in properties is set to sqlite3 and sqlite3 installed.
         """
-        ism = InfiniteStateMachine(self.props_path)
+        args = {
+            'properties_file': self.sqlite3_properties
+        }
+        ism = InfiniteStateMachine(args)
+        self.assertTrue(os.path.exists(ism.get_db_path()), 'Sqlite3 database creation failed')
+
+    def test_mysql_database_creation(self):
+        """Test that the MySql database is created.
+
+        Implies that rdbms key in properties is set to mysql and mysql installed.
+        """
+        args = {
+            'properties_file': self.mysql_properties,
+            'database': {
+                'password': 'wbA7C2B6R7'
+            }
+        }
+        ism = InfiniteStateMachine(args)
 
 
 if __name__ == '__main__':

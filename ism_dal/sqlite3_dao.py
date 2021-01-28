@@ -1,5 +1,5 @@
 """
-Methods for handling DB creation and CRUD operations.
+Methods for handling DB creation and CRUD operations in Sqlite3.
 """
 
 # Standard library imports
@@ -9,7 +9,7 @@ import sqlite3
 from ism_dal.dao_interface import DAOInterface
 
 
-class Sqlite3(DAOInterface):
+class Sqlite3DAO(DAOInterface):
     """Implements Methods for handling DB creation and CRUD operations against SQLITE3"""
 
     connection = None

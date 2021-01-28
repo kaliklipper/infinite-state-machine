@@ -1,0 +1,9 @@
+database:
+  rdbms: mysql
+  db_name: ism
+  host: localhost
+  user: state_admin
+
+runtime:
+  root_dir: /tmp/ism
+  stamp_format: epoch_milliseconds
