@@ -3,6 +3,7 @@ Methods for handling DB creation and CRUD operations in Sqlite3.
 """
 
 # Standard library imports
+import logger
 import sqlite3
 
 # Local application imports
@@ -51,7 +52,7 @@ class Sqlite3DAO(DAOInterface):
         try:
             self.cnx = sqlite3.connect(self.db_path)
         except sqlite3.Error as error:
-            print("Error while connecting to sqlite", error)
+            logger.error("Error while connecting to sqlite", error)
 
     def use_database(self, *args):
         """Sqlite3 doesn't need this but implemented to honour interface."""

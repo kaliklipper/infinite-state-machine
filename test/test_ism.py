@@ -11,6 +11,7 @@ The module contains the following functions:
 
 # Standard library imports
 import os
+import re
 import unittest
 
 # Local application imports
@@ -53,7 +54,7 @@ class TestISM(unittest.TestCase):
             'properties_file': self.sqlite3_properties
         }
         ism = InfiniteStateMachine(args)
-        self.assertTrue(os.path.exists(ism.get_db_path()), 'Sqlite3 database creation failed')
+        self.assertTrue(os.path.exists(ism.get_database_name()), 'Sqlite3 database creation failed')
 
     def test_mysql_database_creation(self):
         """Test that the MySql database is created.
@@ -67,6 +68,8 @@ class TestISM(unittest.TestCase):
             }
         }
         ism = InfiniteStateMachine(args)
+        db_name = ism.get_database_name()
+        self.assertTrue(re.match(r'default_.+', db_name), 'Mysql DB name faile dto match expected pattern')
 
 
 if __name__ == '__main__':

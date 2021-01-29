@@ -14,3 +14,6 @@
 
 # Unit Tests
 - [x] Test framework for ISM
+
+# Logging
+- [ ] Add logging to ISM and DAO

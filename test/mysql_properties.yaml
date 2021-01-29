@@ -4,6 +4,10 @@ database:
   host: localhost
   user: state_admin
 
+logging:
+  file: ism.log
+  level: debug
+
 runtime:
   root_dir: /tmp/ism
   stamp_format: epoch_milliseconds

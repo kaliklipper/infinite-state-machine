@@ -2,6 +2,10 @@ database:
   rdbms: sqlite3
   db_name: ism_db
 
+logging:
+  file: ism.log
+  level: debug
+
 runtime:
   root_dir: /tmp/ism
   use_tags: true

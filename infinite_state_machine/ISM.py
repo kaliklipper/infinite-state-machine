@@ -11,12 +11,13 @@ Implements the following functions:
 
 # Standard library imports
 import errno
+import logging
 import os
 import time
 import yaml
 
 # Local application imports
-from ism_exceptions.exceptions import RDBMSNotRecognised, TimestampFormatNotRecognised
+from ism_exceptions.exceptions import LogLevelNotRecognised, RDBMSNotRecognised, TimestampFormatNotRecognised
 
 
 class InfiniteStateMachine:
@@ -54,6 +55,7 @@ class InfiniteStateMachine:
         self.properties['runtime']['run_timestamp'] = self.__create_run_timestamp()
         self.properties['runtime']['tag'] = args[0].get('tag', 'default')
         self.__create_runtime_environment()
+        self.__enable_logging()
         self.__create_db(self.properties['database']['rdbms'])
 
     # Private methods
@@ -99,8 +101,36 @@ class InfiniteStateMachine:
             }[rdbms.lower()]()
         except KeyError:
             raise RDBMSNotRecognised(f'RDBMS {rdbms} not recognised / supported')
-        except:
+        except Exception:
             raise
+
+    def __enable_logging(self):
+        """Configure the logging to write to a log file in the run root"""
+        log_dir = f'{self.properties["runtime"]["run_dir"]}' \
+                  f'{os.path.sep}' \
+                  f'log'
+        os.makedirs(log_dir)
+
+        self.properties["logging"]["file"] = \
+            f'{log_dir}' \
+            f'{os.path.sep}' \
+            f'{self.properties["logging"]["file"]}'
+
+        try:
+            logging.basicConfig(
+                filename=self.properties["logging"]["file"],
+                filemode='w',
+                level={
+                    'DEBUG': logging.DEBUG,
+                    'INFO': logging.INFO,
+                    'WARNING': logging.WARNING,
+                    'ERROR': logging.ERROR,
+                    'CRITICAL': logging.CRITICAL
+                }[self.properties['logging']['level'].upper()],
+                format='%(asctime)s %(message)s'
+            )
+        except KeyError:
+            raise LogLevelNotRecognised(f'RDBMS {self.properties["logging"]["level"]} not recognised / supported')
 
     def __get_properties(self):
         """Read in the properties file passed into the constructor."""
@@ -115,6 +145,7 @@ class InfiniteStateMachine:
             f'{self.properties["runtime"]["tag"]}_' \
             f'{self.properties["runtime"]["run_timestamp"]}'
         self.dao.create_database(self.properties)
+        logging.info(f'Created MySql database {self.properties["database"]["run_db"]}')
 
     def __create_sqlite3(self):
         """RDBMS set to SQLITE3
@@ -129,11 +160,17 @@ class InfiniteStateMachine:
         os.makedirs(db_dir)
         self.dao = Sqlite3DAO()
         self.dao.create_database(self.properties)
+        logging.info(f'Created Sqlite3 database {self.properties["database"]["db_path"]}')
 
     # Public methods
-    def get_db_path(self):
+    def get_database_name(self):
         """Return the path to the database if set"""
-        return self.properties['database']['db_path']
+
+        db = {
+                'sqlite3': self.properties['database']['db_path'],
+                'mysql': self.properties['database']["run_db"]
+            }[self.properties['database']['rdbms'].lower()]
+        return db
 
     def get_tag(self):
         """Return the user tag for the runtime directories"""

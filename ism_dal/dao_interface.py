@@ -22,11 +22,11 @@ class DAOInterface:
         pass
 
     def open_connection(self, *args):
-        """Creates or opens a database connection.
+        """Creates a database connection"""
+        pass
 
-            * SQLITE3 Creates a database instance in the file system if not existing.
-            * MYSQL Creates a database in the MySql RDBMS. Assumes MySql installed.
-        """
+    def open_connection_to_database(self, *args):
+        """Creates a connection to the specific DB"""
         pass
 
     def use_database(self, *args):

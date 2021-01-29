@@ -3,6 +3,7 @@ Methods for handling DB creation and CRUD operations in MySql.
 """
 
 # Standard library imports
+import logger
 import mysql.connector
 from mysql.connector import errorcode
 
@@ -35,7 +36,7 @@ class MySqlDAO(DAOInterface):
             self.close_connection()
             return rows
         except mysql.connector.Error as err:
-            print(err.msg)
+            logger.error(err.msg)
 
     def execute_sql_statement(self, sql):
         """Execute a SQL statement and return the exit code"""
@@ -44,7 +45,7 @@ class MySqlDAO(DAOInterface):
             cursor.execute(sql)
             self.close_connection()
         except mysql.connector.Error as err:
-            print(err.msg)
+            logger.error(err.msg)
 
     def open_connection(self, *args):
         """Opens a database connection.
@@ -59,9 +60,26 @@ class MySqlDAO(DAOInterface):
             )
         except mysql.connector.Error as err:
             if err.errno == errorcode.ER_ACCESS_DENIED_ERROR:
-                print("Something is wrong with the user name or password")
+                logger.error("Failed authentication to MYSql RDBMS")
             elif err.errno == errorcode.ER_BAD_DB_ERROR:
-                print("Database does not exist")
+                logger.error("Database does not exist")
+            else:
+                self.cnx.close()
+
+    def open_connection_to_database(self, *args):
+        """Opens a database connection to a specific database."""
+        try:
+            self.cnx = mysql.connector.connect(
+                user=args[0]['database']['user'],
+                host=args[0]['database']['host'],
+                password=args[0]['database']['password'],
+                database=args[0]["database"]["run_db"]
+            )
+        except mysql.connector.Error as err:
+            if err.errno == errorcode.ER_ACCESS_DENIED_ERROR:
+                logger.error("Failed authentication to MYSql RDBMS")
+            elif err.errno == errorcode.ER_BAD_DB_ERROR:
+                logger.error("Database does not exist")
             else:
                 self.cnx.close()
 
