@@ -28,3 +28,7 @@ class DAOInterface:
             * MYSQL Creates a database in the MySql RDBMS. Assumes MySql installed.
         """
         pass
+
+    def use_database(self, *args):
+        """Switches to a database via a USE statement."""
+        pass

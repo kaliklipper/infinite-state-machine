@@ -128,7 +128,7 @@ class InfiniteStateMachine:
             f'{db_dir}{os.path.sep}{self.properties["database"]["db_name"]}'
         os.makedirs(db_dir)
         self.dao = Sqlite3DAO()
-        self.dao.create_database(self.properties['database']['db_path'])
+        self.dao.create_database(self.properties)
 
     # Public methods
     def get_db_path(self):

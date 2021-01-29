@@ -28,15 +28,26 @@ class MySqlDAO(DAOInterface):
 
     def execute_sql_query(self, sql):
         """Execute a SQL query and return the cursor."""
-        pass
+        try:
+            cursor = self.cnx.cursor()
+            cursor.execute(sql)
+            rows = cursor.fetchall()
+            self.close_connection()
+            return rows
+        except mysql.connector.Error as err:
+            print(err.msg)
 
     def execute_sql_statement(self, sql):
         """Execute a SQL statement and return the exit code"""
-        db_cursor = self.cnx.cursor()
-        db_cursor.execute(sql)
+        try:
+            cursor = self.cnx.cursor()
+            cursor.execute(sql)
+            self.close_connection()
+        except mysql.connector.Error as err:
+            print(err.msg)
 
     def open_connection(self, *args):
-        """Creates or opens a database connection.
+        """Opens a database connection.
 
             * MYSQL Creates a database in the MySql RDBMS. Assumes MySql installed.
         """
@@ -53,3 +64,8 @@ class MySqlDAO(DAOInterface):
                 print("Database does not exist")
             else:
                 self.cnx.close()
+
+    def use_database(self, *args):
+        """Switches to a database via a USE statement."""
+        sql = f'USE {args[0]["database"]["db_name"]};'
+        self.execute_sql_statement(sql)
