@@ -56,6 +56,9 @@ class InfiniteStateMachine:
         self.properties['runtime']['tag'] = args[0].get('tag', 'default')
         self.__create_runtime_environment()
         self.__enable_logging()
+        logging.info(f'Starting run using user tag ('
+                     f'{self.properties["runtime"]["tag"]}) and system tag ('
+                     f'{self.properties["runtime"]["run_timestamp"]})')
         self.__create_db(self.properties['database']['rdbms'])
 
     # Private methods
@@ -88,6 +91,7 @@ class InfiniteStateMachine:
                    f'{os.path.sep}' \
                    f'{self.properties["runtime"]["run_timestamp"]}'
             os.makedirs(self.properties["runtime"]["run_dir"])
+            logging.info(f'Created runtime directory at {self.properties["runtime"]["run_dir"]}')
         except OSError as e:
             if e.errno != errno.EEXIST:
                 raise
@@ -106,17 +110,17 @@ class InfiniteStateMachine:
 
     def __enable_logging(self):
         """Configure the logging to write to a log file in the run root"""
-        log_dir = f'{self.properties["runtime"]["run_dir"]}' \
-                  f'{os.path.sep}' \
-                  f'log'
-        os.makedirs(log_dir)
-
-        self.properties["logging"]["file"] = \
-            f'{log_dir}' \
-            f'{os.path.sep}' \
-            f'{self.properties["logging"]["file"]}'
-
         try:
+            log_dir = f'{self.properties["runtime"]["run_dir"]}' \
+                      f'{os.path.sep}' \
+                      f'log'
+            os.makedirs(log_dir)
+
+            self.properties["logging"]["file"] = \
+                f'{log_dir}' \
+                f'{os.path.sep}' \
+                f'{self.properties["logging"]["file"]}'
+
             logging.basicConfig(
                 filename=self.properties["logging"]["file"],
                 filemode='w',
@@ -131,9 +135,12 @@ class InfiniteStateMachine:
             )
         except KeyError:
             raise LogLevelNotRecognised(f'RDBMS {self.properties["logging"]["level"]} not recognised / supported')
+        except Exception:
+            raise
 
     def __get_properties(self):
         """Read in the properties file passed into the constructor."""
+        logging.info(f'Reading in properties from file ({self.properties_file})')
         with open(self.properties_file) as file:
             return yaml.safe_load(file)
 

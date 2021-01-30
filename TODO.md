@@ -16,4 +16,4 @@
 - [x] Test framework for ISM
 
 # Logging
-- [ ] Add logging to ISM and DAO
+- [x] Add logging to ISM and DAO
