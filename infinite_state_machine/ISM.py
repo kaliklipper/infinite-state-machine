@@ -40,6 +40,7 @@ class InfiniteStateMachine:
     """
 
     dao = None
+    logger = None
     properties_file = None
     properties = None
 
@@ -56,9 +57,9 @@ class InfiniteStateMachine:
         self.properties['runtime']['tag'] = args[0].get('tag', 'default')
         self.__create_runtime_environment()
         self.__enable_logging()
-        logging.info(f'Starting run using user tag ('
-                     f'{self.properties["runtime"]["tag"]}) and system tag ('
-                     f'{self.properties["runtime"]["run_timestamp"]})')
+        self.logger.info(f'Starting run using user tag ('
+                         f'{self.properties["runtime"]["tag"]}) and system tag ('
+                         f'{self.properties["runtime"]["run_timestamp"]})')
         self.__create_db(self.properties['database']['rdbms'])
 
     # Private methods
@@ -91,7 +92,6 @@ class InfiniteStateMachine:
                    f'{os.path.sep}' \
                    f'{self.properties["runtime"]["run_timestamp"]}'
             os.makedirs(self.properties["runtime"]["run_dir"])
-            logging.info(f'Created runtime directory at {self.properties["runtime"]["run_dir"]}')
         except OSError as e:
             if e.errno != errno.EEXIST:
                 raise
@@ -109,7 +109,13 @@ class InfiniteStateMachine:
             raise
 
     def __enable_logging(self):
-        """Configure the logging to write to a log file in the run root"""
+        """Configure the logging to write to a log file in the run root
+
+        Used this guide to set up logging. It explains how to set up different loggers
+        for each module and have them referenced in the log.
+        https://docs.python.org/3/howto/logging-cookbook.html
+        """
+
         try:
             log_dir = f'{self.properties["runtime"]["run_dir"]}' \
                       f'{os.path.sep}' \
@@ -121,22 +127,28 @@ class InfiniteStateMachine:
                 f'{os.path.sep}' \
                 f'{self.properties["logging"]["file"]}'
 
-            logging.basicConfig(
-                filename=self.properties["logging"]["file"],
-                filemode='w',
-                level={
-                    'DEBUG': logging.DEBUG,
-                    'INFO': logging.INFO,
-                    'WARNING': logging.WARNING,
-                    'ERROR': logging.ERROR,
-                    'CRITICAL': logging.CRITICAL
-                }[self.properties['logging']['level'].upper()],
-                format='%(asctime)s %(message)s'
-            )
+            log_level = {
+                'DEBUG': logging.DEBUG,
+                'INFO': logging.INFO,
+                'WARNING': logging.WARNING,
+                'ERROR': logging.ERROR,
+                'CRITICAL': logging.CRITICAL
+            }[self.properties['logging']['level'].upper()]
+
         except KeyError:
             raise LogLevelNotRecognised(f'RDBMS {self.properties["logging"]["level"]} not recognised / supported')
         except Exception:
             raise
+
+        self.logger = logging.getLogger('ism')
+        self.logger.setLevel(log_level)
+        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        fh = logging.FileHandler(self.properties["logging"]["file"], 'w')
+        fh.setFormatter(formatter)
+        self.logger.addHandler(fh)
+
+        # Suppress propagation to STDOUT
+        self.logger.propagate = self.properties.get('logging', {}).get('propagate', False)
 
     def __get_properties(self):
         """Read in the properties file passed into the constructor."""
@@ -145,20 +157,24 @@ class InfiniteStateMachine:
             return yaml.safe_load(file)
 
     def __create_mysql(self):
+        """Create the Mysql database for the run."""
 
         from ism_dal.mysql_dao import MySqlDAO
+
         self.dao = MySqlDAO()
         self.properties['database']['run_db'] = \
+            f'{self.properties["database"]["db_name"]}_' \
             f'{self.properties["runtime"]["tag"]}_' \
             f'{self.properties["runtime"]["run_timestamp"]}'
         self.dao.create_database(self.properties)
-        logging.info(f'Created MySql database {self.properties["database"]["run_db"]}')
+        self.logger.info(f'Created MySql database {self.properties["database"]["run_db"]}')
 
     def __create_sqlite3(self):
         """RDBMS set to SQLITE3
 
         Create the SQLITE3 database object and record the path to it.
         """
+
         from ism_dal.sqlite3_dao import Sqlite3DAO
 
         db_dir = f'{self.properties["runtime"]["run_dir"]}{os.path.sep}database'
@@ -167,15 +183,15 @@ class InfiniteStateMachine:
         os.makedirs(db_dir)
         self.dao = Sqlite3DAO()
         self.dao.create_database(self.properties)
-        logging.info(f'Created Sqlite3 database {self.properties["database"]["db_path"]}')
+        self.logger.info(f'Created Sqlite3 database {self.properties["database"]["db_path"]}')
 
     # Public methods
     def get_database_name(self):
         """Return the path to the database if set"""
 
         db = {
-                'sqlite3': self.properties['database']['db_path'],
-                'mysql': self.properties['database']["run_db"]
+                'sqlite3': self.properties.get('database', {}).get('db_path', None),
+                'mysql': self.properties.get('database', {}).get("run_db", None)
             }[self.properties['database']['rdbms'].lower()]
         return db
 

@@ -8,13 +8,13 @@ Run the unit tests from the package root using this syntax:
 
 To clean down the unit test mysql databases created  log into mysql using the -s option to give clean result sets then:
 
-```Bradleys-MBP:~ atkinsb$ mysql -u root -s
-mysql> SELECT CONCAT('DROP DATABASE `', SCHEMA_NAME, '`;') FROM `information_schema`.`SCHEMATA` WHERE SCHEMA_NAME LIKE 'default_%';
+```
+mysql> SELECT CONCAT('DROP DATABASE `', SCHEMA_NAME, '`;') FROM `information_schema`.`SCHEMATA` WHERE SCHEMA_NAME LIKE 'ism_default_%';
 CONCAT('DROP DATABASE `', SCHEMA_NAME, '`;')
-DROP DATABASE `default_1611855489819`;
-DROP DATABASE `default_1611855533770`;
-DROP DATABASE `default_1611856233213`;
-DROP DATABASE `default_1611856253150`;
-DROP DATABASE `default_1611856264937`;
+DROP DATABASE `ism_default_1611855489819`;
+DROP DATABASE `ism_default_1611855533770`;
+DROP DATABASE `ism_default_1611856233213`;
+DROP DATABASE `ism_default_1611856253150`;
+DROP DATABASE `ism_default_1611856264937`;
 ```
 Then copy and paste the drop statements into the command line.

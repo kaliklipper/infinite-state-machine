@@ -69,7 +69,7 @@ class TestISM(unittest.TestCase):
         }
         ism = InfiniteStateMachine(args)
         db_name = ism.get_database_name()
-        self.assertTrue(re.match(r'default_.+', db_name), 'Mysql DB name faile dto match expected pattern')
+        self.assertTrue(re.match(r'ism_default_.+', db_name), 'Mysql DB name faile dto match expected pattern')
 
 
 if __name__ == '__main__':

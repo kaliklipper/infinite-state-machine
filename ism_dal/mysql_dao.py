@@ -3,7 +3,7 @@ Methods for handling DB creation and CRUD operations in MySql.
 """
 
 # Standard library imports
-import logger
+import logging
 import mysql.connector
 from mysql.connector import errorcode
 
@@ -14,6 +14,10 @@ from ism_dal.dao_interface import DAOInterface
 class MySqlDAO(DAOInterface):
 
     cnx = None
+
+    def __init__(self):
+        self.logger = logging.getLogger('ism.mysql_dao.MySqlDAO')
+        self.logger.info('Initialising MySqlDAO.')
 
     def close_connection(self):
         """Close the connection if open"""
@@ -36,7 +40,7 @@ class MySqlDAO(DAOInterface):
             self.close_connection()
             return rows
         except mysql.connector.Error as err:
-            logger.error(err.msg)
+            self.logger.error(err.msg)
 
     def execute_sql_statement(self, sql):
         """Execute a SQL statement and return the exit code"""
@@ -45,7 +49,7 @@ class MySqlDAO(DAOInterface):
             cursor.execute(sql)
             self.close_connection()
         except mysql.connector.Error as err:
-            logger.error(err.msg)
+            self.logger.error(err.msg)
 
     def open_connection(self, *args):
         """Opens a database connection.
@@ -60,9 +64,9 @@ class MySqlDAO(DAOInterface):
             )
         except mysql.connector.Error as err:
             if err.errno == errorcode.ER_ACCESS_DENIED_ERROR:
-                logger.error("Failed authentication to MYSql RDBMS")
+                self.logger.error("Failed authentication to MYSql RDBMS")
             elif err.errno == errorcode.ER_BAD_DB_ERROR:
-                logger.error("Database does not exist")
+                self.logger.error("Database does not exist")
             else:
                 self.cnx.close()
 
@@ -77,13 +81,12 @@ class MySqlDAO(DAOInterface):
             )
         except mysql.connector.Error as err:
             if err.errno == errorcode.ER_ACCESS_DENIED_ERROR:
-                logger.error("Failed authentication to MYSql RDBMS")
+                self.logger.error("Failed authentication to MYSql RDBMS")
             elif err.errno == errorcode.ER_BAD_DB_ERROR:
-                logger.error("Database does not exist")
+                self.logger.error("Database does not exist")
             else:
                 self.cnx.close()
 
     def use_database(self, *args):
         """Switches to a database via a USE statement."""
-        sql = f'USE {args[0]["database"]["db_name"]};'
-        self.execute_sql_statement(sql)
+        self.execute_sql_statement(f'USE {args[0]["database"]["db_name"]};')
