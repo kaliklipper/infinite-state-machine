@@ -26,7 +26,7 @@ class TestISM(unittest.TestCase):
     mysql_properties = f'{dir}{path_sep}mysql_properties.yaml'
 
     def test_properties_file_set(self):
-        """Test that ISM sets path to the test file."""
+        """Test that ISM sets path to the tests file."""
         args = {
             'properties_file': self.sqlite3_properties
         }
@@ -34,7 +34,7 @@ class TestISM(unittest.TestCase):
         self.assertEqual(ism.properties_file, self.sqlite3_properties)
 
     def test_properties_are_read_in(self):
-        """Test that it imports properties from the test file."""
+        """Test that it imports properties from the tests file."""
         args = {
             'properties_file': self.sqlite3_properties
         }

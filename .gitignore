@@ -1,2 +1,6 @@
 .idea/
 venv/
+build/
+dist/
+python_state_machine_kaliklipper.egg-info/
+./setup.py

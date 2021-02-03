@@ -17,3 +17,6 @@
 
 # Logging
 - [x] Add logging to ISM and DAO
+
+# Packaging
+- [ ] Add packaging files for PyPi
