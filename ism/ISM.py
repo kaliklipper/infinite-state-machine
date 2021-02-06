@@ -5,7 +5,7 @@ Implements the following functions:
     * __init__ - Constructor accepts path to properties file and
     then calls get_properties() to load the YAML.
     * get_properties - Read the properties file into the properties attribute.
-    * run - Iterates over the array of imported actions and calls each one's
+    * run - Iterates over the array of imported ism_core_actions and calls each one's
         execute method.
 """
 
@@ -17,10 +17,10 @@ import time
 import yaml
 
 # Local application imports
-from ism_exceptions.exceptions import LogLevelNotRecognised, RDBMSNotRecognised, TimestampFormatNotRecognised
+from ism.exceptions.exceptions import LogLevelNotRecognised, RDBMSNotRecognised, TimestampFormatNotRecognised
 
 
-class InfiniteStateMachine:
+class ISM:
     """
     Implements an Infinite State Machine
 
@@ -32,7 +32,7 @@ class InfiniteStateMachine:
     Methods
     -------
     run()
-        Iterates over the array of actions and calls each one's
+        Iterates over the array of ism_core_actions and calls each one's
         execute method.
     get_properties()
         Read in the properties file passed into the constructor.
@@ -159,7 +159,7 @@ class InfiniteStateMachine:
     def __create_mysql(self):
         """Create the Mysql database for the run."""
 
-        from ism_dal.mysql_dao import MySqlDAO
+        from ism.dal.mysql_dao import MySqlDAO
 
         self.dao = MySqlDAO()
         self.properties['database']['run_db'] = \
@@ -175,7 +175,7 @@ class InfiniteStateMachine:
         Create the SQLITE3 database object and record the path to it.
         """
 
-        from ism_dal.sqlite3_dao import Sqlite3DAO
+        from ism.dal.sqlite3_dao import Sqlite3DAO
 
         db_dir = f'{self.properties["runtime"]["run_dir"]}{os.path.sep}database'
         self.properties['database']['db_path'] = \
@@ -204,7 +204,7 @@ class InfiniteStateMachine:
         self.properties['runtime']['tag'] = tag
 
     def run(self):
-        """Iterates over the array of imported actions and calls each one's
+        """Iterates over the array of imported ism_core_actions and calls each one's
         execute method.
 
         Method executes in its own thread.

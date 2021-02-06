@@ -8,7 +8,7 @@ import mysql.connector
 from mysql.connector import errorcode
 
 # Local application imports
-from ism_dal.dao_interface import DAOInterface
+from ism.interfaces.dao_interface import DAOInterface
 
 
 class MySqlDAO(DAOInterface):

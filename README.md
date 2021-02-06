@@ -15,13 +15,15 @@ imports its functionality in packages.
 # Unit Tests
 Run the unit tests from the package root using this syntax:
 
-```python -m unittest -v test.test_ism.TestISM```
+```python3 -m unittest -v ism.tests.test_ism.TestISM```
 
 To clean down the unit test mysql databases created  log into mysql using the -s option to give clean result sets then:
 
 ```
 mysql> SELECT CONCAT('DROP DATABASE `', SCHEMA_NAME, '`;') FROM `information_schema`.`SCHEMATA` 
-WHERE SCHEMA_NAME LIKE 'ism_default_%'; CONCAT('DROP DATABASE `', SCHEMA_NAME, '`;')
+WHERE SCHEMA_NAME LIKE 'ism_default_%'; 
+
+CONCAT('DROP DATABASE `', SCHEMA_NAME, '`;')
 DROP DATABASE `ism_default_1611855489819`;
 DROP DATABASE `ism_default_1611855533770`;
 DROP DATABASE `ism_default_1611856233213`;

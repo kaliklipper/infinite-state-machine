@@ -1,0 +1,28 @@
+{
+    "rdbms": [
+        {
+            "mysql": {
+                "tables": [
+                    "CREATE TABLE dependencies (dependency_id INT NOT NULL AUTO_INCREMENT,dependency TEXT NOT NULL COMMENT 'Name of the dependency',version TEXT NOT NULL COMMENT 'Version number of the dependency',PRIMARY KEY (dependency_id));",
+                    "CREATE TABLE properties (property TEXT NOT NULL COMMENT 'A property',value TEXT COMMENT 'The value of the property');",
+                    "CREATE TABLE states (id INTEGER NOT NULL AUTO_INCREMENT,state BOOLEAN DEFAULT '0' COMMENT 'State is set or not',state_name TEXT NOT NULL COMMENT 'Textual name',note TEXT COMMENT 'Note explaining what this state is for', PRIMARY KEY(id));",
+                    "CREATE TABLE actions (id INTEGER NOT NULL AUTO_INCREMENT,action TEXT COMMENT 'The textual name. e.g. ActionConfirmReadyToRun',run_phase TEXT NOT NULL COMMENT 'The run phase this action is valid in',payload TEXT COMMENT 'Any payload required for action',active BOOLEAN NOT NULL DEFAULT '0' COMMENT 'Is this action active or not?', PRIMARY KEY(id));",
+                    "CREATE TABLE messages (id INTEGER NOT NULL AUTO_INCREMENT COMMENT 'Record ID in recipient messages table',sender TEXT NOT NULL COMMENT 'Return address of sender',sender_id INTEGER NOT NULL COMMENT 'Record ID in sender messages table',recipient TEXT NOT NULL COMMENT 'Address of recipient',action TEXT NOT NULL COMMENT 'Name of the action that handles this message',payload TEXT COMMENT 'Json body of msg payload',sent TEXT NOT NULL COMMENT 'Timestamp msg sent by sender',received TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT 'Time ism loaded message into database',direction TEXT NOT NULL COMMENT 'In or outbound message',processed BOOLEAN NOT NULL DEFAULT '0' COMMENT 'Has the message been processed?',PRIMARY KEY(id));",
+                    "CREATE TABLE phases (id INTEGER NOT NULL AUTO_INCREMENT,state BOOLEAN DEFAULT '0' COMMENT 'phase is active or not',phase_name TEXT NOT NULL COMMENT 'Textual name',note TEXT COMMENT 'Note explaining what this phase is for', PRIMARY KEY(id));"
+                ]
+            }
+        },
+        {
+            "sqlite3": {
+                "tables": [
+                    "CREATE TABLE dependencies (dependency_id INTEGER NOT NULL PRIMARY KEY,dependency TEXT NOT NULL, -- Name of the dependency version TEXT NOT NULL -- Version number of the dependency);",
+                    "CREATE TABLE properties (property TEXT NOT NULL, -- A property value TEXT -- The value of the property);",
+                    "CREATE TABLE states (id INTEGER NOT NULL PRIMARY KEY,state BOOLEAN DEFAULT '0', -- State is set or not state_name TEXT NOT NULL, -- Textual name note TEXT -- Note explaining what this state is for);",
+                    "CREATE TABLE actions (id INTEGER NOT NULL PRIMARY KEY,action TEXT, -- The textual name. e.g. ActionConfirmReadyToRun run_phase TEXT NOT NULL DEFAULT 'STARTUP', -- The run phase this action is valid in payload TEXT, -- Any payload required for action active BOOLEAN NOT NULL DEFAULT '0' -- Is this action active or not?);",
+                    "CREATE TABLE messages (id INTEGER NOT NULL PRIMARY KEY, -- Record ID in recipient messages table sender TEXT NOT NULL, -- Return address of sender sender_id INTEGER NOT NULL, -- Record ID in sender messages table recipient TEXT NOT NULL, -- Address of recipient action TEXT NOT NULL, -- Name of the action that handles this message payload TEXT, -- Json body of msg payload sent TEXT NOT NULL, -- Timestamp msg sent by sender received TEXT NOT NULL DEFAULT (strftime('%s', 'now')), -- Timestamp ism loaded message into database direction TEXT NOT NULL DEFAULT 'inbound', -- In or outbound message processed BOOLEAN NOT NULL DEFAULT '0' -- Has the message been processed);",
+                    "CREATE TABLE phases (id INTEGER NOT NULL PRIMARY KEY,state BOOLEAN DEFAULT '0', -- phase is active or not phase_name TEXT NOT NULL, -- Textual name note TEXT -- Note explaining what this phase is for);"
+                ]
+            }
+        }
+    ]
+}

@@ -1,5 +1,5 @@
 """
-Interface defines each data access object's methods.
+Interface defines required methods for a Data Access Layer.
 """
 
 

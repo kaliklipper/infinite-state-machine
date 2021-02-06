@@ -15,22 +15,22 @@ import re
 import unittest
 
 # Local application imports
-from infinite_state_machine.ISM import InfiniteStateMachine
+from ism.ISM import ISM
 
 
 class TestISM(unittest.TestCase):
 
     path_sep = os.path.sep
     dir = os.path.dirname(os.path.abspath(__file__))
-    sqlite3_properties = f'{dir}{path_sep}sqlite3_properties.yaml'
-    mysql_properties = f'{dir}{path_sep}mysql_properties.yaml'
+    sqlite3_properties = f'{dir}{path_sep}resources{path_sep}sqlite3_properties.yaml'
+    mysql_properties = f'{dir}{path_sep}resources{path_sep}mysql_properties.yaml'
 
     def test_properties_file_set(self):
         """Test that ISM sets path to the tests file."""
         args = {
             'properties_file': self.sqlite3_properties
         }
-        ism = InfiniteStateMachine(args)
+        ism = ISM(args)
         self.assertEqual(ism.properties_file, self.sqlite3_properties)
 
     def test_properties_are_read_in(self):
@@ -38,7 +38,7 @@ class TestISM(unittest.TestCase):
         args = {
             'properties_file': self.sqlite3_properties
         }
-        ism = InfiniteStateMachine(args)
+        ism = ISM(args)
         self.assertEqual(
             ism.properties['database']['password'],
             None,
@@ -53,7 +53,7 @@ class TestISM(unittest.TestCase):
         args = {
             'properties_file': self.sqlite3_properties
         }
-        ism = InfiniteStateMachine(args)
+        ism = ISM(args)
         self.assertTrue(os.path.exists(ism.get_database_name()), 'Sqlite3 database creation failed')
 
     def test_mysql_database_creation(self):
@@ -67,9 +67,9 @@ class TestISM(unittest.TestCase):
                 'password': 'wbA7C2B6R7'
             }
         }
-        ism = InfiniteStateMachine(args)
+        ism = ISM(args)
         db_name = ism.get_database_name()
-        self.assertTrue(re.match(r'ism_default_.+', db_name), 'Mysql DB name faile dto match expected pattern')
+        self.assertTrue(re.match(r'ism_default_.+', db_name), 'Mysql DB name failed to match expected pattern')
 
 
 if __name__ == '__main__':

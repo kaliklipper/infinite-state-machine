@@ -7,7 +7,7 @@ import logging
 import sqlite3
 
 # Local application imports
-from ism_dal.dao_interface import DAOInterface
+from ism.interfaces.dao_interface import DAOInterface
 
 
 class Sqlite3DAO(DAOInterface):
