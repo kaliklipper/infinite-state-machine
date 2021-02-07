@@ -20,8 +20,8 @@ Run the unit tests from the package root using this syntax:
 To clean down the unit test mysql databases created  log into mysql using the -s option to give clean result sets then:
 
 ```
-mysql> SELECT CONCAT('DROP DATABASE `', SCHEMA_NAME, '`;') FROM `information_schema`.`SCHEMATA` 
-WHERE SCHEMA_NAME LIKE 'ism_default_%'; 
+mysql> SELECT CONCAT('DROP DATABASE ', SCHEMA_NAME, ';') FROM 
+information_schema.schemata WHERE SCHEMA_NAME LIKE '%ism_default_%'; 
 
 CONCAT('DROP DATABASE `', SCHEMA_NAME, '`;')
 DROP DATABASE `ism_default_1611855489819`;
