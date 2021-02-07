@@ -17,7 +17,8 @@ class Sqlite3DAO(DAOInterface):
     db_path = None
     logger = None
 
-    def __init__(self):
+    def __init__(self, *args):
+        self.db_path = args[0]['database']['db_path']
         self.logger = logging.getLogger('ism.sqlite3_dao.Sqlite3DAO')
         self.logger.info('Initialising Sqlite3DAO.')
 
@@ -30,11 +31,13 @@ class Sqlite3DAO(DAOInterface):
 
         Seems redundant but is useful to honour the interface.
         """
+
         self.open_connection(*args)
         self.close_connection()
 
     def execute_sql_query(self, sql):
         """Execute a SQL query and return the cursor."""
+        self.open_connection()
         cursor = self.cnx.cursor()
         cursor.execute(sql)
         rows = cursor.fetchall()
@@ -43,6 +46,7 @@ class Sqlite3DAO(DAOInterface):
 
     def execute_sql_statement(self, sql):
         """Execute a SQL statement and return the exit code"""
+        self.open_connection()
         cursor = self.cnx.cursor()
         cursor.execute(sql)
         self.cnx.commit()
@@ -51,14 +55,9 @@ class Sqlite3DAO(DAOInterface):
     def open_connection(self, *args):
         """Creates a database connection.
 
-            * Creates a SQLITE3 database connection.
+            * Opens a SQLITE3 database connection.
         """
-        self.db_path = args[0]['database']['db_path']
         try:
             self.cnx = sqlite3.connect(self.db_path)
         except sqlite3.Error as error:
             self.logger.error("Error while connecting to Sqlite3 database.", error)
-
-    def use_database(self, *args):
-        """Sqlite3 doesn't need this but implemented to honour interface."""
-        pass

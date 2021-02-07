@@ -4,7 +4,7 @@
   * [ ] Import action packs
   * [x] Import settings from file
   * [x] Database creation / DAL
-  * [ ] Import SQL statements
+  * [x] Import SQL statements
   * [x] Create runtime environment
 
 # Action Packs
@@ -19,4 +19,4 @@
 - [x] Add logging to ISM and DAO
 
 # Packaging
-- [ ] Add packaging files for PyPi
+- [x] Add packaging files for PyPi

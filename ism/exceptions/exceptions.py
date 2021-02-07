@@ -1,9 +1,9 @@
 """Custom Exceptions for the state machine"""
 
 
-class LogLevelNotRecognised(Exception):
+class PropertyKeyNotRecognised(Exception):
 
-    def __init__(self, message='Log Level not recognised / supported'):
+    def __init__(self, message='Property Key not recognised'):
         self.message = message
         super().__init__(self.message)
 

@@ -17,7 +17,7 @@ class DAOInterface:
         """Execute a SQL query and return the cursor."""
         pass
 
-    def execute_sql_statement(self, sql):
+    def execute_sql_statement(self, sql, close_cnx=True):
         """Execute a SQL statement and return the exit code"""
         pass
 
@@ -27,8 +27,4 @@ class DAOInterface:
 
     def open_connection_to_database(self, *args):
         """Creates a connection to the specific DB"""
-        pass
-
-    def use_database(self, *args):
-        """Switches to a database via a USE statement."""
         pass

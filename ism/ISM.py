@@ -11,13 +11,15 @@ Implements the following functions:
 
 # Standard library imports
 import errno
+import importlib.resources as pkg_resources
+import json
 import logging
 import os
 import time
 import yaml
 
 # Local application imports
-from ism.exceptions.exceptions import LogLevelNotRecognised, RDBMSNotRecognised, TimestampFormatNotRecognised
+from ism.exceptions.exceptions import PropertyKeyNotRecognised, RDBMSNotRecognised, TimestampFormatNotRecognised
 
 
 class ISM:
@@ -61,40 +63,21 @@ class ISM:
                          f'{self.properties["runtime"]["tag"]}) and system tag ('
                          f'{self.properties["runtime"]["run_timestamp"]})')
         self.__create_db(self.properties['database']['rdbms'])
+        self.__create_core_schema()
+        self.__insert_core_data()
 
     # Private methods
-    def __create_run_timestamp(self):
-        """Create a timestamp for the runtime directories in correct format
+    def __create_core_schema(self):
+        """Create the core schema
 
-        Properties file runtime:stamp_format may be -
-            epoch_milliseconds
-            epoch_seconds
+        ISM needs a basic core of tables to run. Import the schema from ism.core.schema.json.
         """
-        time_format = self.properties['runtime']['stamp_format']
-        try:
-            return {
-                'epoch_seconds': int(time.time()),
-                'epoch_milliseconds': int(time.time()*1000.0)
-            }[time_format]
-        except KeyError:
-            raise TimestampFormatNotRecognised(f'Timestamp format ({time_format}) not recognised')
 
-    def __create_runtime_environment(self):
-        """Create the runtime environment
-
-        The ISM will create a directory structure for the run. This will
-        hold the database, runtime files and directories.
-        """
-        try:
-            self.properties["runtime"]["run_dir"] = f'{self.properties["runtime"]["root_dir"]}' \
-                   f'{os.path.sep}' \
-                   f'{self.properties["runtime"]["tag"]}' \
-                   f'{os.path.sep}' \
-                   f'{self.properties["runtime"]["run_timestamp"]}'
-            os.makedirs(self.properties["runtime"]["run_dir"])
-        except OSError as e:
-            if e.errno != errno.EEXIST:
-                raise
+        from . import core
+        with pkg_resources.open_text(core, 'schema.json') as schema:
+            data = json.load(schema)
+            for table in data[self.properties['database']['rdbms'].lower()]['tables']:
+                self.dao.execute_sql_statement(table)
 
     def __create_db(self, rdbms):
         """Route through to the correct RDBMS handler"""
@@ -107,6 +90,68 @@ class ISM:
             raise RDBMSNotRecognised(f'RDBMS {rdbms} not recognised / supported')
         except Exception:
             raise
+
+    def __create_mysql(self):
+        """Create the Mysql database for the run."""
+
+        from ism.dal.mysql_dao import MySqlDAO
+
+        self.properties['database']['run_db'] = \
+            f'{self.properties["database"]["db_name"]}_' \
+            f'{self.properties["runtime"]["tag"]}_' \
+            f'{self.properties["runtime"]["run_timestamp"]}'
+        self.dao = MySqlDAO(self.properties)
+        self.dao.create_database(self.properties)
+        self.logger.info(f'Created MySql database {self.properties["database"]["run_db"]}')
+
+    def __create_sqlite3(self):
+        """RDBMS set to SQLITE3
+
+        Create the SQLITE3 database object and record the path to it.
+        """
+
+        from ism.dal.sqlite3_dao import Sqlite3DAO
+
+        db_dir = f'{self.properties["runtime"]["run_dir"]}{os.path.sep}database'
+        self.properties['database']['db_path'] = \
+            f'{db_dir}{os.path.sep}{self.properties["database"]["db_name"]}'
+        os.makedirs(db_dir)
+        self.dao = Sqlite3DAO(self.properties)
+        self.dao.create_database(self.properties)
+        self.logger.info(f'Created Sqlite3 database {self.properties["database"]["db_path"]}')
+
+    def __create_run_timestamp(self):
+        """Create a timestamp for the runtime directories in correct format
+
+        Properties file runtime:stamp_format may be -
+            epoch_milliseconds
+            epoch_seconds
+        """
+        time_format = self.properties['runtime']['stamp_format']
+        try:
+            return {
+                'epoch_seconds': int(time.time()),
+                'epoch_milliseconds': int(time.time()*1000.0)
+            }[time_format.lower()]
+        except KeyError:
+            raise TimestampFormatNotRecognised(f'Timestamp format ({time_format}) not recognised')
+
+    def __create_runtime_environment(self):
+        """Create the runtime environment
+
+        The ISM will create a directory structure for the run. This will
+        hold the database, runtime files and directories.
+        """
+        try:
+            self.properties["runtime"]["run_dir"] = f'{self.properties["runtime"]["root_dir"]}' \
+                                                    f'{os.path.sep}' \
+                                                    f'{self.properties["runtime"]["tag"]}' \
+                                                    f'{os.path.sep}' \
+                                                    f'{self.properties["runtime"]["run_timestamp"]}'
+            os.makedirs(self.properties["runtime"]["run_dir"])
+        except OSError as e:
+            if e.errno != errno.EEXIST:
+                raise
 
     def __enable_logging(self):
         """Configure the logging to write to a log file in the run root
@@ -136,7 +181,7 @@ class ISM:
             }[self.properties['logging']['level'].upper()]
 
         except KeyError:
-            raise LogLevelNotRecognised(f'RDBMS {self.properties["logging"]["level"]} not recognised / supported')
+            raise PropertyKeyNotRecognised()
         except Exception:
             raise
 
@@ -156,34 +201,17 @@ class ISM:
         with open(self.properties_file) as file:
             return yaml.safe_load(file)
 
-    def __create_mysql(self):
-        """Create the Mysql database for the run."""
+    def __insert_core_data(self):
+        """Insert the run data for the core
 
-        from ism.dal.mysql_dao import MySqlDAO
-
-        self.dao = MySqlDAO()
-        self.properties['database']['run_db'] = \
-            f'{self.properties["database"]["db_name"]}_' \
-            f'{self.properties["runtime"]["tag"]}_' \
-            f'{self.properties["runtime"]["run_timestamp"]}'
-        self.dao.create_database(self.properties)
-        self.logger.info(f'Created MySql database {self.properties["database"]["run_db"]}')
-
-    def __create_sqlite3(self):
-        """RDBMS set to SQLITE3
-
-        Create the SQLITE3 database object and record the path to it.
+        ISM needs a basic core of actions to run. Import the data from ism.core.data.json.
         """
 
-        from ism.dal.sqlite3_dao import Sqlite3DAO
-
-        db_dir = f'{self.properties["runtime"]["run_dir"]}{os.path.sep}database'
-        self.properties['database']['db_path'] = \
-            f'{db_dir}{os.path.sep}{self.properties["database"]["db_name"]}'
-        os.makedirs(db_dir)
-        self.dao = Sqlite3DAO()
-        self.dao.create_database(self.properties)
-        self.logger.info(f'Created Sqlite3 database {self.properties["database"]["db_path"]}')
+        from . import core
+        with pkg_resources.open_text(core, 'data.json') as data:
+            inserts = json.load(data)
+            for insert in inserts[self.properties['database']['rdbms'].lower()]['inserts']:
+                self.dao.execute_sql_statement(insert)
 
     # Public methods
     def get_database_name(self):
