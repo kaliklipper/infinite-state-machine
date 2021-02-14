@@ -1,48 +1,28 @@
 {
     "mysql": {
         "inserts": [
-            "INSERT INTO states VALUES(1,0,'READY_TO_RUN','We are ready to run');",
             "INSERT INTO actions VALUES(1,'ActionConfirmReadyToRun','STARTING','null',1);",
             "INSERT INTO actions VALUES(2,'ActionNormalShutdown','ALL','null',0);",
             "INSERT INTO actions VALUES(3,'ActionEmergencyShutdown','ALL','null',0);",
-            "INSERT INTO actions VALUES(4,'ActionCheckForNewMessages','RUNNING','null',1);",
             "INSERT INTO actions VALUES(5,'ActionProcessInboundMessages','RUNNING','null',0);",
-            "INSERT INTO actions VALUES(6,'ActionBeforeCreateMessagingDirectories','STARTING','null',1);",
-            "INSERT INTO actions VALUES(7,'ActionAfterArchiveMessages','NORMAL_SHUTDOWN','null',1);",
             "INSERT INTO phases VALUES(1,0,'EMERGENCY_SHUTDOWN','Phase is emergency shutdown');",
             "INSERT INTO phases VALUES(2,0,'NORMAL_SHUTDOWN','Phase is shutting down normally');",
             "INSERT INTO phases VALUES(3,0,'RUNNING','Phase is running');",
             "INSERT INTO phases VALUES(4,1,'STARTING','Phase is starting');",
-            "INSERT INTO phases VALUES(5,0,'STOPPED','Phase is stopped');",
-            "INSERT INTO properties VALUES('msg_root', 'messages');",
-            "INSERT INTO properties VALUES('msg_in', 'in');",
-            "INSERT INTO properties VALUES('msg_in_processed', 'in_processed');",
-            "INSERT INTO properties VALUES('msg_out', 'out');",
-            "INSERT INTO properties VALUES('msg_out_processed', 'out_processed');",
-            "INSERT INTO properties VALUES('msg_rejected', 'rejected');"
+            "INSERT INTO phases VALUES(5,0,'STOPPED','Phase is stopped');"
         ]
     },
     "sqlite3": {
         "inserts": [
-            "INSERT INTO states VALUES(1,0,'READY_TO_RUN','We are ready to run');",
             "INSERT INTO actions VALUES(1,'ActionConfirmReadyToRun','STARTING','null',1);",
             "INSERT INTO actions VALUES(2,'ActionNormalShutdown','ALL','null',0);",
             "INSERT INTO actions VALUES(3,'ActionEmergencyShutdown','ALL','null',0);",
-            "INSERT INTO actions VALUES(4,'ActionCheckForNewMessages','RUNNING','null',1);",
             "INSERT INTO actions VALUES(5,'ActionProcessInboundMessages','RUNNING','null',0);",
-            "INSERT INTO actions VALUES(6,'ActionBeforeCreateMessagingDirectories','STARTING','null',1);",
-            "INSERT INTO actions VALUES(7,'ActionAfterArchiveMessages','NORMAL_SHUTDOWN','null',1);",
             "INSERT INTO phases VALUES(1,0,'EMERGENCY_SHUTDOWN','Phase is emergency shutdown');",
             "INSERT INTO phases VALUES(2,0,'NORMAL_SHUTDOWN','Phase is shutting down normally');",
             "INSERT INTO phases VALUES(3,0,'RUNNING','Phase is running');",
             "INSERT INTO phases VALUES(4,1,'STARTING','Phase is starting');",
-            "INSERT INTO phases VALUES(5,0,'STOPPED','Phase is stopped');",
-            "INSERT INTO properties VALUES('msg_root', 'messages');",
-            "INSERT INTO properties VALUES('msg_in', 'in');",
-            "INSERT INTO properties VALUES('msg_in_processed', 'in_processed');",
-            "INSERT INTO properties VALUES('msg_out', 'out');",
-            "INSERT INTO properties VALUES('msg_out_processed', 'out_processed');",
-            "INSERT INTO properties VALUES('msg_rejected', 'rejected');"
+            "INSERT INTO phases VALUES(5,0,'STOPPED','Phase is stopped');"
         ]
     }
 }

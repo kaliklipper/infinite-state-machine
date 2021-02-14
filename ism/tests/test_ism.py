@@ -16,6 +16,7 @@ import unittest
 
 # Local application imports
 from ism.ISM import ISM
+# import ism.tests.test_action_pack
 
 
 class TestISM(unittest.TestCase):
@@ -69,7 +70,21 @@ class TestISM(unittest.TestCase):
         }
         ism = ISM(args)
         db_name = ism.get_database_name()
-        self.assertTrue(re.match(r'ism_default_.+', db_name), 'Mysql DB name failed to match expected pattern')
+        self.assertTrue(re.match(r'ism_default_.+', db_name),
+                        f'Mysql DB name ({db_name}) failed to match expected pattern')
+
+    # def test_action_import(self):
+    #     """Test that the ism imports a valid action.
+    #
+    #     Action runs, writes to a tmp file and then exits.
+    #     Also creates a table and data in the DB.
+    #     """
+    #
+    #     args = {
+    #         'properties_file': self.sqlite3_properties
+    #     }
+    #     ism = ISM(args)
+    #     ism.import_action_pack()
 
 
 if __name__ == '__main__':

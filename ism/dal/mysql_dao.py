@@ -44,7 +44,7 @@ class MySqlDAO(DAOInterface):
             self.logger.error(err.msg)
 
     def execute_sql_query(self, sql):
-        """Execute a SQL query and return the cursor.
+        """Execute a SQL query and return the result.
 
         Assumes DB is already created.
         """

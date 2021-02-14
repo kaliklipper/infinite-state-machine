@@ -14,10 +14,10 @@ class DAOInterface:
         pass
 
     def execute_sql_query(self, sql):
-        """Execute a SQL query and return the cursor."""
+        """Execute a SQL query and return the result."""
         pass
 
-    def execute_sql_statement(self, sql, close_cnx=True):
+    def execute_sql_statement(self, sql):
         """Execute a SQL statement and return the exit code"""
         pass
 

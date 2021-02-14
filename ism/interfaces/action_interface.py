@@ -2,4 +2,8 @@
 
 
 class ActionInterface:
-    pass
+
+    def execute(self):
+        """Primary method of any action is to execute the code required to
+        fulfil the action"""
+        pass

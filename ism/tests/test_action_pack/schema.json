@@ -1,0 +1,12 @@
+{
+    "mysql": {
+        "tables": [
+            "CREATE TABLE tests ( id INTEGER NOT NULL AUTO_INCREMENT, test BOOLEAN DEFAULT '0' COMMENT 'A test field for the unit tests to query';"
+        ]
+    },
+    "sqlite3": {
+        "tables": [
+            "CREATE TABLE tests (\nid INTEGER NOT NULL PRIMARY KEY,\ntest BOOLEAN DEFAULT '0', -- A test field for the unit tests to query\n);"
+        ]
+    }
+}

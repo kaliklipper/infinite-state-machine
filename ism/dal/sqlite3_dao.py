@@ -36,7 +36,11 @@ class Sqlite3DAO(DAOInterface):
         self.close_connection()
 
     def execute_sql_query(self, sql):
-        """Execute a SQL query and return the cursor."""
+        """Execute a SQL query and return the result.
+
+        @:param query. { sql: 'SELECT ...', params: params
+        """
+
         self.open_connection()
         cursor = self.cnx.cursor()
         cursor.execute(sql)

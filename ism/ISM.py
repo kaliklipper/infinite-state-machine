@@ -15,11 +15,18 @@ import importlib.resources as pkg_resources
 import json
 import logging
 import os
+import threading
 import time
 import yaml
 
 # Local application imports
 from ism.exceptions.exceptions import PropertyKeyNotRecognised, RDBMSNotRecognised, TimestampFormatNotRecognised
+from . import core
+from .core.action import Action
+from .core.action_normal_shutdown import ActionNormalShutdown
+from .core.action_emergency_shutdown import ActionEmergencyShutdown
+from .core.action_process_inbound_messages import ActionProcessInboundMessages
+from .core.action_confirm_ready_to_run import ActionConfirmReadyToRun
 
 
 class ISM:
@@ -41,11 +48,6 @@ class ISM:
 
     """
 
-    dao = None
-    logger = None
-    properties_file = None
-    properties = None
-
     def __init__(self, *args):
         """
         :param props_file:
@@ -57,6 +59,8 @@ class ISM:
         self.properties['database']['db_path'] = None
         self.properties['runtime']['run_timestamp'] = self.__create_run_timestamp()
         self.properties['runtime']['tag'] = args[0].get('tag', 'default')
+        self.ism_thread = None
+        self.actions = []
         self.__create_runtime_environment()
         self.__enable_logging()
         self.logger.info(f'Starting run using user tag ('
@@ -65,6 +69,7 @@ class ISM:
         self.__create_db(self.properties['database']['rdbms'])
         self.__create_core_schema()
         self.__insert_core_data()
+        self.__import_core_actions()
 
     # Private methods
     def __create_core_schema(self):
@@ -73,7 +78,6 @@ class ISM:
         ISM needs a basic core of tables to run. Import the schema from ism.core.schema.json.
         """
 
-        from . import core
         with pkg_resources.open_text(core, 'schema.json') as schema:
             data = json.load(schema)
             for table in data[self.properties['database']['rdbms'].lower()]['tables']:
@@ -195,11 +199,19 @@ class ISM:
         # Suppress propagation to STDOUT
         self.logger.propagate = self.properties.get('logging', {}).get('propagate', False)
 
-    def __get_properties(self):
+    def __get_properties(self) -> dict:
         """Read in the properties file passed into the constructor."""
         logging.info(f'Reading in properties from file ({self.properties_file})')
         with open(self.properties_file) as file:
             return yaml.safe_load(file)
+
+    def __import_core_actions(self):
+        """Import the core actions for the ISM"""
+
+        self.actions.append(ActionProcessInboundMessages())
+        self.actions.append(ActionConfirmReadyToRun())
+        self.actions.append(ActionEmergencyShutdown())
+        self.actions.append(ActionNormalShutdown())
 
     def __insert_core_data(self):
         """Insert the run data for the core
@@ -213,30 +225,72 @@ class ISM:
             for insert in inserts[self.properties['database']['rdbms'].lower()]['inserts']:
                 self.dao.execute_sql_statement(insert)
 
+    def set_action_class_vars(self):
+        """Set the parent action class vars"""
+
+        Action.dao = self.dao
+        Action.properties = self.properties
+        Action.logger = logging.getLogger('ism.core.Action')
+
     # Public methods
-    def get_database_name(self):
-        """Return the path to the database if set"""
+    def get_database_name(self) -> str:
+        """Return the database name"""
 
         db = {
-                'sqlite3': self.properties.get('database', {}).get('db_path', None),
-                'mysql': self.properties.get('database', {}).get("run_db", None)
-            }[self.properties['database']['rdbms'].lower()]
+                'sqlite3': self.__get_sqlite3_db_name,
+                'mysql': self.__get_mysql_db_name
+            }[self.properties['database']['rdbms'].lower()]()
         return db
 
-    def get_tag(self):
+    def get_tag(self) -> str:
         """Return the user tag for the runtime directories"""
         return self.properties['runtime']['tag']
+
+    def import_action_pack(self, pack):
+        """Import an action pack
+
+        Application can pass in action packs to enable the ISM to express
+        specific functionality.
+        """
+
+        pass
 
     def set_tag(self, tag):
         """Set the user tag for the runtime directories"""
         self.properties['runtime']['tag'] = tag
 
     def run(self):
-        """Iterates over the array of imported ism_core_actions and calls each one's
+        """Iterates over the array of imported actions and calls each one's
         execute method.
 
         Method executes in its own thread.
         """
-        pass
+        index = 0
+        while True:
+            self.actions[index].execute()
+            index += 1
+            if index >= len(self.actions):
+                index = 0
+
+    def start(self, join=False):
+        """Start running the state machine main loop in the background
+
+        Caller has the option to run the thread as a daemon or to join() it.
+        """
+
+        self.logger.info('Starting run() thread')
+        self.ism_thread = threading.Thread(target=self.run, daemon=True)
+        self.ism_thread.start()
+        if join:
+            self.ism_thread.join()
 
     # Test Methods
+    def __get_mysql_db_name(self) -> str:
+        sql = f'select SCHEMA_NAME from information_schema.schemata WHERE SCHEMA_NAME = ' \
+              f'"{self.properties.get("database", {}).get("run_db", None)}";'
+
+        rows = self.dao.execute_sql_query(sql)
+        return ''.join(rows[0]) if rows else 'Not found'
+
+    def __get_sqlite3_db_name(self) -> str:
+        return self.properties.get('database', {}).get('db_path', 'Not found')

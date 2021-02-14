@@ -4,3 +4,6 @@ build/
 dist/
 python_state_machine_kaliklipper.egg-info/
 ./setup.py
+ism/__pycache__/
+ism/tests/__pycache__/
+*.pyc

@@ -1,0 +1,14 @@
+{
+    "mysql": {
+        "inserts": [
+            "INSERT INTO properties VALUES('Test Property','Test Value');",
+            "INSERT INTO tests VALUES ('1');"
+        ]
+    },
+    "sqlite3": {
+        "inserts": [
+            "INSERT INTO properties VALUES('Test Property','Test Value');",
+            "INSERT INTO tests VALUES ('1');"
+        ]
+    }
+}
