@@ -208,10 +208,14 @@ class ISM:
     def __import_core_actions(self):
         """Import the core actions for the ISM"""
 
-        self.actions.append(ActionProcessInboundMessages())
-        self.actions.append(ActionConfirmReadyToRun())
-        self.actions.append(ActionEmergencyShutdown())
-        self.actions.append(ActionNormalShutdown())
+        args = {
+            "dao": self.dao,
+            "properties": self.properties
+        }
+        self.actions.append(ActionProcessInboundMessages(args))
+        self.actions.append(ActionConfirmReadyToRun(args))
+        self.actions.append(ActionEmergencyShutdown(args))
+        self.actions.append(ActionNormalShutdown(args))
 
     def __insert_core_data(self):
         """Insert the run data for the core

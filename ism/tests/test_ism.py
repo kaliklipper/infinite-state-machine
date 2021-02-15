@@ -73,18 +73,30 @@ class TestISM(unittest.TestCase):
         self.assertTrue(re.match(r'ism_default_.+', db_name),
                         f'Mysql DB name ({db_name}) failed to match expected pattern')
 
-    # def test_action_import(self):
-    #     """Test that the ism imports a valid action.
-    #
-    #     Action runs, writes to a tmp file and then exits.
-    #     Also creates a table and data in the DB.
-    #     """
-    #
-    #     args = {
-    #         'properties_file': self.sqlite3_properties
-    #     }
-    #     ism = ISM(args)
-    #     ism.import_action_pack()
+    def test_action_import_sqlite3(self):
+        """Test that the ism imports the core actions and runs in the background
+        as either a daemon or via a join().
+
+        """
+        args = {
+            'properties_file': self.sqlite3_properties
+        }
+        ism = ISM(args)
+        ism.start(join=True)
+
+    def test_action_import_mysql(self):
+        """Test that the ism imports the core actions and runs in the background
+        as either a daemon or via a join().
+
+        """
+        args = {
+            'properties_file': self.mysql_properties,
+            'database': {
+                'password': 'wbA7C2B6R7'
+            }
+        }
+        ism = ISM(args)
+        ism.start(join=True)
 
 
 if __name__ == '__main__':

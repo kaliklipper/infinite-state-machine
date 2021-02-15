@@ -13,10 +13,6 @@ from ism.interfaces.dao_interface import DAOInterface
 class Sqlite3DAO(DAOInterface):
     """Implements Methods for handling DB creation and CRUD operations against SQLITE3"""
 
-    cnx = None
-    db_path = None
-    logger = None
-
     def __init__(self, *args):
         self.db_path = args[0]['database']['db_path']
         self.logger = logging.getLogger('ism.sqlite3_dao.Sqlite3DAO')
