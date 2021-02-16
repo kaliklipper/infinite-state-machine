@@ -14,16 +14,22 @@ class ActionConfirmReadyToRun(Action):
     def execute(self):
         """Execute the instructions for this action"""
         if self.active():
-            sql = f'SELECT action FROM actions WHERE action LIKE "%Before%" AND active = {True};'
-            records = self.dao.execute_sql_query(sql)
+            sql = self.dao.prepare_parameterised_statement(
+                f'SELECT action FROM actions WHERE action LIKE "%Before%" AND active = ?'
+            )
+            records = self.dao.execute_sql_query(sql, (True,))
             if len(records) > 0:
                 return
             else:
                 # Change phase from STARTING to RUNNING
-                sql = f'UPDATE phases SET state = {False} WHERE state = {True};'
-                self.dao.execute_sql_statement(sql)
-                sql = f'UPDATE phases SET state = {True} WHERE phase_name = "RUNNING";'
-                self.dao.execute_sql_statement(sql)
+                sql = self.dao.prepare_parameterised_statement(
+                    f'UPDATE phases SET state = ? WHERE state = ?'
+                )
+                self.dao.execute_sql_statement(sql, (False, True))
+                sql = self.dao.prepare_parameterised_statement(
+                    f'UPDATE phases SET state = ? WHERE execution_phase = "RUNNING";'
+                )
+                self.dao.execute_sql_statement(sql, (True,))
                 self.activate('ActionProcessInboundMessages')
                 # Ready to run so we're done with this action
                 self.deactivate()

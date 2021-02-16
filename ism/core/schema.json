@@ -2,17 +2,17 @@
     "mysql": {
         "tables": [
             "CREATE TABLE properties (property TEXT NOT NULL COMMENT 'A property', value TEXT COMMENT 'The value of the property' );",
-            "CREATE TABLE actions ( id INTEGER NOT NULL AUTO_INCREMENT, action TEXT COMMENT 'The textual name. e.g. ActionConfirmReadyToRun', run_phase TEXT NOT NULL COMMENT 'The run phase this action is valid in', payload TEXT COMMENT 'Any payload required for action', active BOOLEAN NOT NULL DEFAULT '0' COMMENT 'Is this action active or not?',  PRIMARY KEY(id) );",
+            "CREATE TABLE actions ( id INTEGER NOT NULL AUTO_INCREMENT, action TEXT COMMENT 'The textual name. e.g. ActionConfirmReadyToRun', execution_phase TEXT NOT NULL COMMENT 'The execution phase this action is valid in', payload TEXT COMMENT 'Any payload required for action', active BOOLEAN NOT NULL DEFAULT '0' COMMENT 'Is this action active or not?',  PRIMARY KEY(id) );",
             "CREATE TABLE messages ( id INTEGER NOT NULL AUTO_INCREMENT COMMENT 'Record ID in recipient messages table', sender TEXT NOT NULL COMMENT 'Return address of sender', sender_id INTEGER NOT NULL COMMENT 'Record ID in sender messages table', recipient TEXT NOT NULL COMMENT 'Address of recipient', action TEXT NOT NULL COMMENT 'Name of the action that handles this message', payload TEXT COMMENT 'Json body of msg payload', sent TEXT NOT NULL COMMENT 'Timestamp msg sent by sender', received TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT 'Time ism loaded message into database', direction TEXT NOT NULL COMMENT 'In or outbound message', processed BOOLEAN NOT NULL DEFAULT '0' COMMENT 'Has the message been processed?', PRIMARY KEY(id) );",
-            "CREATE TABLE phases ( id INTEGER NOT NULL AUTO_INCREMENT, state BOOLEAN DEFAULT '0' COMMENT 'phase is active or not', phase_name TEXT NOT NULL COMMENT 'Textual name', note TEXT COMMENT 'Note explaining what this phase is for',  PRIMARY KEY(id) );"
+            "CREATE TABLE phases ( id INTEGER NOT NULL AUTO_INCREMENT, state BOOLEAN DEFAULT '0' COMMENT 'phase is active or not', execution_phase TEXT NOT NULL COMMENT 'Textual name', note TEXT COMMENT 'Note explaining what this phase is for',\n PRIMARY KEY(id) );"
         ]
     },
     "sqlite3": {
         "tables": [
             "CREATE TABLE properties (\nproperty TEXT NOT NULL, -- A property\nvalue TEXT -- The value of the property\n);",
-            "CREATE TABLE actions (\nid INTEGER NOT NULL PRIMARY KEY,\naction TEXT, -- The textual name. e.g. ActionConfirmReadyToRun\nrun_phase TEXT NOT NULL DEFAULT 'STARTUP', -- The run phase this action is valid in\npayload TEXT, -- Any payload required for action\nactive BOOLEAN NOT NULL DEFAULT '0' -- Is this action active or not?\n);",
+            "CREATE TABLE actions (\nid INTEGER NOT NULL PRIMARY KEY,\naction TEXT, -- The textual name. e.g. ActionConfirmReadyToRun\nexecution_phase TEXT NOT NULL DEFAULT 'STARTUP', -- The execution phase this action is valid in\npayload TEXT, -- Any payload required for action\nactive BOOLEAN NOT NULL DEFAULT '0' -- Is this action active or not?\n);",
             "CREATE TABLE messages (\nid INTEGER NOT NULL PRIMARY KEY, -- Record ID in recipient messages table\nsender TEXT NOT NULL, -- Return address of sender\nsender_id INTEGER NOT NULL, -- Record ID in sender messages table\nrecipient TEXT NOT NULL, -- Address of recipient\naction TEXT NOT NULL, -- Name of the action that handles this message\npayload TEXT, -- Json body of msg payload\nsent TEXT NOT NULL, -- Timestamp msg sent by sender\nreceived TEXT NOT NULL DEFAULT (strftime('%s', 'now')), -- Timestamp ism loaded message into database\ndirection TEXT NOT NULL DEFAULT 'inbound', -- In or outbound message\nprocessed BOOLEAN NOT NULL DEFAULT '0' -- Has the message been processed\n);",
-            "CREATE TABLE phases (\nid INTEGER NOT NULL PRIMARY KEY,\nstate BOOLEAN DEFAULT '0', -- phase is active or not\nphase_name TEXT NOT NULL, -- Textual name\nnote TEXT -- Note explaining what this phase is for\n);"
+            "CREATE TABLE phases (\nid INTEGER NOT NULL PRIMARY KEY,\nstate BOOLEAN DEFAULT '0', -- phase is active or not\nexecution_phase TEXT NOT NULL, -- Textual name\nnote TEXT -- Note explaining what this phase is for\n);"
         ]
     }
 }

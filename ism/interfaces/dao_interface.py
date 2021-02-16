@@ -13,11 +13,11 @@ class DAOInterface:
         """Create the control database."""
         pass
 
-    def execute_sql_query(self, sql):
+    def execute_sql_query(self, sql, params=()):
         """Execute a SQL query and return the result."""
         pass
 
-    def execute_sql_statement(self, sql):
+    def execute_sql_statement(self, sql, params=()):
         """Execute a SQL statement and return the exit code"""
         pass
 
@@ -27,4 +27,9 @@ class DAOInterface:
 
     def open_connection_to_database(self, *args):
         """Creates a connection to the specific DB"""
+        pass
+
+    @staticmethod
+    def prepare_parameterised_statement(sql: str) -> str:
+        """Prepare a parameterised sql statement for this RDBMS."""
         pass

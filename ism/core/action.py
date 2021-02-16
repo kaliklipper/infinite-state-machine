@@ -3,7 +3,8 @@
 """
 import logging
 
-from ism.exceptions.exceptions import DuplicateDataInControlDatabase, MissingDataInControlDatabase
+from ism.exceptions.exceptions import DuplicateDataInControlDatabase, MissingDataInControlDatabase, \
+    ExecutionPhaseNotFound
 
 
 class Action:
@@ -16,42 +17,71 @@ class Action:
 
     def active(self) -> bool:
         """Test if the child action is activated"""
-        action = self.dao.execute_sql_query(
-            f'SELECT active, run_phase FROM actions WHERE action = "{self.action_name}";'
+
+        sql = self.dao.prepare_parameterised_statement(
+            f'SELECT active, execution_phase FROM actions WHERE action = ?'
         )
-        phase = self.dao.execute_sql_query(
-            f'SELECT phase_name FROM phases WHERE state = 1;'
-        )
-        if len(action) > 1:
+        this_action = self.dao.execute_sql_query(sql, (self.action_name,))
+        phase = self.__get_execution_phase()
+
+        if len(this_action) > 1:
             message = f'Duplicate records for action {self.action_name} found'
             self.logger.error(message)
             raise DuplicateDataInControlDatabase(message)
 
-        if len(action) == 0:
+        if len(this_action) == 0:
             message = f'Missing record for action {self.action_name}'
             self.logger.error(message)
             raise MissingDataInControlDatabase(message)
 
-        if action[0][1] == phase[0][0]:
-            if action[0][0]:
-                return True
-
-        return False
+        try:
+            if this_action[0][0]:
+                if this_action[0][1] == phase:
+                    return True
+            return False
+        except Exception as e:
+            self.logger.error(
+                f'Error while testing action ({self.action_name}) execution phase. ({e})'
+            )
+            raise
 
     def activate(self, action: str):
         """Activate the named action"""
 
-        # TODO Add check for correct run phase before activating.
-        sql = f'UPDATE actions SET active = {True} WHERE action = "{action}";'
-
-        self.dao.execute_sql_statement(sql)
+        sql = self.dao.prepare_parameterised_statement(f'UPDATE actions SET active = ? WHERE action = ?')
+        params = (True, action)
+        self.dao.execute_sql_statement(sql, params)
 
     def deactivate(self, action=None):
         """Deactivate the named action or this action by default"""
 
+        sql = self.dao.prepare_parameterised_statement(
+            f'UPDATE actions SET active = ? WHERE action = ?'
+        )
         if action is None:
-            sql = f'UPDATE actions SET active = {False} WHERE action = "{self.action_name}";'
+            params = (False, self.action_name)
         else:
-            sql = f'UPDATE actions SET active = {False} WHERE action = "{action}";'
+            params = (False, action)
 
-        self.dao.execute_sql_statement(sql)
+        self.dao.execute_sql_statement(sql, params)
+
+    # Private methods
+    def __get_execution_phase(self) -> str:
+        """Get the current active execution phase.
+
+        e.g.
+            * RUNNING
+            * STARTING
+            * EMERGENCY_SHUTDOWN
+            * NORMAL_SHUTDOWN
+            * STOPPED
+        """
+        try:
+            phase_record = self.dao.execute_sql_query(
+                f'SELECT execution_phase FROM phases WHERE state = 1'
+            )[0][0]
+        except KeyError as e:
+            raise ExecutionPhaseNotFound('Current execution_phase not found in control database')
+
+        return phase_record
+

@@ -8,6 +8,7 @@ import mysql.connector
 from mysql.connector import errorcode
 
 # Local application imports
+from ism.exceptions.exceptions import UnrecognisedParameterisationCharacter
 from ism.interfaces.dao_interface import DAOInterface
 
 
@@ -43,7 +44,7 @@ class MySqlDAO(DAOInterface):
         except mysql.connector.Error as err:
             self.logger.error(err.msg)
 
-    def execute_sql_query(self, sql):
+    def execute_sql_query(self, sql, params=()):
         """Execute a SQL query and return the result.
 
         Assumes DB is already created.
@@ -51,14 +52,14 @@ class MySqlDAO(DAOInterface):
         try:
             self.open_connection_to_database()
             cursor = self.cnx.cursor()
-            cursor.execute(sql)
+            cursor.execute(sql, params)
             rows = cursor.fetchall()
             self.close_connection()
             return rows
         except mysql.connector.Error as err:
             self.logger.error(err.msg)
 
-    def execute_sql_statement(self, sql):
+    def execute_sql_statement(self, sql, params=()):
         """Execute a SQL statement
 
         Assumes DB is already created.
@@ -66,12 +67,13 @@ class MySqlDAO(DAOInterface):
         try:
             self.open_connection_to_database()
             cursor = self.cnx.cursor()
-            cursor.execute(sql)
+            cursor.execute(sql, params)
             self.cnx.commit()
             self.close_connection()
         except mysql.connector.Error as err:
             self.logger.error(err.msg)
 
+    # TODO find return type
     def open_connection(self, *args):
         """Opens a database connection.
 
@@ -84,6 +86,7 @@ class MySqlDAO(DAOInterface):
                 host=self.host,
                 password=self.password
             )
+            return self.cnx
         except mysql.connector.Error as err:
             if err.errno == errorcode.ER_ACCESS_DENIED_ERROR:
                 self.logger.error("Failed authentication to MYSql RDBMS")
@@ -109,3 +112,30 @@ class MySqlDAO(DAOInterface):
                 self.logger.error("Database does not exist")
             else:
                 self.cnx.close()
+
+    @staticmethod
+    def prepare_parameterised_statement(sql: str) -> str:
+        """Prepare a parameterised sql statement for this RDBMS.
+
+        Third party developers will want to use the DAO to run CRUD
+        operations against the DB, but we support multiple RDBMS. e.g.
+
+        MySql: INSERT INTO Employee
+                       (id, Name, Joining_date, salary) VALUES (%s,%s,%s,%s)
+        Sqlite3: INSERT INTO Employee
+                       (id, Name, Joining_date, salary) VALUES (?,?,?,?)
+
+        This method ensures that the parameterisation is set correctly
+        for the RDBMS in use. Method doesn't use very vigorous checking but
+        as this should only be an issue while developing a new action pack
+        it should be sufficient for now.
+        """
+
+        if '%s' in sql:
+            return sql
+        elif '?' in sql:
+            return sql.replace('?', '%s')
+        else:
+            raise UnrecognisedParameterisationCharacter(
+                f'Parameterisation character not recognised / found in SQL string ({sql})'
+            )

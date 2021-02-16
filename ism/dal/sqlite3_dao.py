@@ -7,6 +7,7 @@ import logging
 import sqlite3
 
 # Local application imports
+from ism.exceptions.exceptions import UnrecognisedParameterisationCharacter
 from ism.interfaces.dao_interface import DAOInterface
 
 
@@ -17,6 +18,7 @@ class Sqlite3DAO(DAOInterface):
         self.db_path = args[0]['database']['db_path']
         self.logger = logging.getLogger('ism.sqlite3_dao.Sqlite3DAO')
         self.logger.info('Initialising Sqlite3DAO.')
+        self.cnx = None
 
     def close_connection(self):
         if self.cnx:
@@ -31,7 +33,7 @@ class Sqlite3DAO(DAOInterface):
         self.open_connection(*args)
         self.close_connection()
 
-    def execute_sql_query(self, sql):
+    def execute_sql_query(self, sql, params=()):
         """Execute a SQL query and return the result.
 
         @:param query. { sql: 'SELECT ...', params: params
@@ -39,25 +41,53 @@ class Sqlite3DAO(DAOInterface):
 
         self.open_connection()
         cursor = self.cnx.cursor()
-        cursor.execute(sql)
+        cursor.execute(sql, params)
         rows = cursor.fetchall()
         self.close_connection()
         return rows
 
-    def execute_sql_statement(self, sql):
+    def execute_sql_statement(self, sql, params=()):
         """Execute a SQL statement and return the exit code"""
         self.open_connection()
         cursor = self.cnx.cursor()
-        cursor.execute(sql)
+        cursor.execute(sql, params)
         self.cnx.commit()
         self.close_connection()
 
-    def open_connection(self, *args):
+    def open_connection(self, *args) -> sqlite3.Connection:
         """Creates a database connection.
 
-            * Opens a SQLITE3 database connection.
+        Opens a SQLITE3 database connection and returns a connector.
         """
         try:
             self.cnx = sqlite3.connect(self.db_path)
+            return self.cnx
         except sqlite3.Error as error:
             self.logger.error("Error while connecting to Sqlite3 database.", error)
+
+    @staticmethod
+    def prepare_parameterised_statement(sql: str) -> str:
+        """Prepare a parameterised sql statement for this RDBMS.
+
+        Third party developers will want to use the DAO to run CRUD
+        operations against the DB, but we support multiple RDBMS. e.g.
+
+        MySql: INSERT INTO Employee
+                       (id, Name, Joining_date, salary) VALUES (%s,%s,%s,%s)
+        Sqlite3: INSERT INTO Employee
+                       (id, Name, Joining_date, salary) VALUES (?,?,?,?)
+
+        This method ensures that the parameterisation is set correctly
+        for the RDBMS in use. Method doesn't use very vigorous checking but
+        as this should only be an issue while developing a new action pack
+        it should be sufficient for now.
+        """
+
+        if '%' in sql:
+            return sql.replace('%s', '?')
+        elif '?' in sql:
+            return sql
+        else:
+            raise UnrecognisedParameterisationCharacter(
+                f'Parameterisation character not recognised / found in SQL string ({sql})'
+            )
