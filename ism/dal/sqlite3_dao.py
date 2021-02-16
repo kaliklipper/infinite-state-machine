@@ -7,7 +7,7 @@ import logging
 import sqlite3
 
 # Local application imports
-from ism.exceptions.exceptions import UnrecognisedParameterisationCharacter
+from ism.exceptions.exceptions import UnrecognisedParameterisationCharacter, ExecutionPhaseNotFound
 from ism.interfaces.dao_interface import DAOInterface
 
 
@@ -83,7 +83,7 @@ class Sqlite3DAO(DAOInterface):
         it should be sufficient for now.
         """
 
-        if '%' in sql:
+        if '%s' in sql:
             return sql.replace('%s', '?')
         elif '?' in sql:
             return sql

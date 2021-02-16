@@ -8,7 +8,7 @@ import mysql.connector
 from mysql.connector import errorcode
 
 # Local application imports
-from ism.exceptions.exceptions import UnrecognisedParameterisationCharacter
+from ism.exceptions.exceptions import UnrecognisedParameterisationCharacter, ExecutionPhaseNotFound
 from ism.interfaces.dao_interface import DAOInterface
 
 
@@ -139,3 +139,20 @@ class MySqlDAO(DAOInterface):
             raise UnrecognisedParameterisationCharacter(
                 f'Parameterisation character not recognised / found in SQL string ({sql})'
             )
+
+    def get_execution_phase(self) -> str:
+        """Get the current active execution phase.
+
+        e.g.
+            * RUNNING
+            * STARTING
+            * EMERGENCY_SHUTDOWN
+            * NORMAL_SHUTDOWN
+            * STOPPED
+        """
+        try:
+            return self.execute_sql_query(
+                f'SELECT execution_phase FROM phases WHERE state = 1'
+            )[0][0]
+        except IndexError as e:
+            raise ExecutionPhaseNotFound(f'Current execution_phase not found in control database. ({e})')

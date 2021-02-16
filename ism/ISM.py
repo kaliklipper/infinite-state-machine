@@ -20,7 +20,8 @@ import time
 import yaml
 
 # Local application imports
-from ism.exceptions.exceptions import PropertyKeyNotRecognised, RDBMSNotRecognised, TimestampFormatNotRecognised
+from ism.exceptions.exceptions import PropertyKeyNotRecognised, RDBMSNotRecognised, TimestampFormatNotRecognised, \
+    ExecutionPhaseNotFound
 from . import core
 from .core.action import Action
 from .core.action_normal_shutdown import ActionNormalShutdown
@@ -59,6 +60,7 @@ class ISM:
         self.properties['database']['db_path'] = None
         self.properties['runtime']['run_timestamp'] = self.__create_run_timestamp()
         self.properties['runtime']['tag'] = args[0].get('tag', 'default')
+        self.running = False
         self.ism_thread = None
         self.actions = []
         self.__create_runtime_environment()
@@ -131,14 +133,14 @@ class ISM:
             epoch_milliseconds
             epoch_seconds
         """
-        time_format = self.properties['runtime']['stamp_format']
+        tag_format = self.properties['runtime']['sys_tag_format']
         try:
             return {
                 'epoch_seconds': int(time.time()),
                 'epoch_milliseconds': int(time.time()*1000.0)
-            }[time_format.lower()]
+            }[tag_format.lower()]
         except KeyError:
-            raise TimestampFormatNotRecognised(f'Timestamp format ({time_format}) not recognised')
+            raise TimestampFormatNotRecognised(f'System tag format ({tag_format}) not recognised')
 
     def __create_runtime_environment(self):
         """Create the runtime environment
@@ -269,8 +271,10 @@ class ISM:
 
         Method executes in its own thread.
         """
+
+        self.running = True
         index = 0
-        while True:
+        while self.running:
             self.actions[index].execute()
             index += 1
             if index >= len(self.actions):
@@ -288,13 +292,39 @@ class ISM:
         if join:
             self.ism_thread.join()
 
+    def stop(self):
+        """Stop the run in the background thread"""
+        self.running = False
+
     # Test Methods
     def __get_mysql_db_name(self) -> str:
-        sql = f'select SCHEMA_NAME from information_schema.schemata WHERE SCHEMA_NAME = ' \
-              f'"{self.properties.get("database", {}).get("run_db", None)}";'
+        """Retrieve the MySql db name from the information schema."""
 
-        rows = self.dao.execute_sql_query(sql)
+        sql = self.dao.prepare_parameterised_statement(
+            'select SCHEMA_NAME from information_schema.schemata WHERE SCHEMA_NAME = ?'
+        )
+        params = (self.properties.get("database", {}).get("run_db", None),)
+        rows = self.dao.execute_sql_query(sql, params)
         return ''.join(rows[0]) if rows else 'Not found'
 
     def __get_sqlite3_db_name(self) -> str:
+        """Return the path to the Sqlite3 database."""
+
         return self.properties.get('database', {}).get('db_path', 'Not found')
+
+    def get_execution_phase(self) -> str:
+        """Get the current active execution phase.
+
+        e.g.
+            * RUNNING
+            * STARTING
+            * EMERGENCY_SHUTDOWN
+            * NORMAL_SHUTDOWN
+            * STOPPED
+        """
+        try:
+            return self.dao.execute_sql_query(
+                f'SELECT execution_phase FROM phases WHERE state = 1'
+            )[0][0]
+        except IndexError as e:
+            raise ExecutionPhaseNotFound(f'Current execution_phase not found in control database. ({e})')

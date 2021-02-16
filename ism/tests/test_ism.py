@@ -15,7 +15,11 @@ import re
 import unittest
 
 # Local application imports
+from time import sleep
+
+from ism import tests
 from ism.ISM import ISM
+import importlib.resources as pkg_resources
 # import ism.tests.test_action_pack
 
 
@@ -46,6 +50,18 @@ class TestISM(unittest.TestCase):
             f'Unexpected result for database: key read from properties file ({self.sqlite3_properties})'
         )
 
+    def test_user_tag(self):
+        """User can set the 'User Tag' to something other than 'default'."""
+
+        args = {
+            'properties_file': self.sqlite3_properties,
+            'tag': 'test_tag'
+        }
+        ism = ISM(args)
+        ism.start()
+        sleep(3)
+        self.assertIn('test_tag', ism.get_database_name())
+
     def test_sqlite3_database_creation(self):
         """Test that the sqlite3 database is created.
 
@@ -75,18 +91,23 @@ class TestISM(unittest.TestCase):
 
     def test_action_import_sqlite3(self):
         """Test that the ism imports the core actions and runs in the background
-        as either a daemon or via a join().
+        as a daemon.
 
         """
         args = {
             'properties_file': self.sqlite3_properties
         }
         ism = ISM(args)
-        ism.start(join=True)
+        self.assertEqual('STARTING', ism.get_execution_phase())
+        ism.start()
+        sleep(1)
+        ism.stop()
+        sleep(1)
+        self.assertEqual('RUNNING', ism.get_execution_phase())
 
     def test_action_import_mysql(self):
         """Test that the ism imports the core actions and runs in the background
-        as either a daemon or via a join().
+        as a daemon.
 
         """
         args = {
@@ -96,7 +117,12 @@ class TestISM(unittest.TestCase):
             }
         }
         ism = ISM(args)
-        ism.start(join=True)
+        self.assertEqual('STARTING', ism.get_execution_phase())
+        ism.start()
+        sleep(1)
+        ism.stop()
+        sleep(1)
+        self.assertEqual('RUNNING', ism.get_execution_phase())
 
 
 if __name__ == '__main__':

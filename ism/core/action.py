@@ -77,11 +77,8 @@ class Action:
             * STOPPED
         """
         try:
-            phase_record = self.dao.execute_sql_query(
+            return self.dao.execute_sql_query(
                 f'SELECT execution_phase FROM phases WHERE state = 1'
             )[0][0]
-        except KeyError as e:
-            raise ExecutionPhaseNotFound('Current execution_phase not found in control database')
-
-        return phase_record
-
+        except IndexError as e:
+            raise ExecutionPhaseNotFound(f'Current execution_phase not found in control database. ({e})')

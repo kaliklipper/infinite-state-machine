@@ -10,4 +10,5 @@ logging:
 runtime:
   root_dir: /tmp/ism
   use_tags: true
-  stamp_format: epoch_milliseconds
+  sys_tag_format: epoch_milliseconds
+  run_mode: test
