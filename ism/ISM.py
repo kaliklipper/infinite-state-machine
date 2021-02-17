@@ -12,6 +12,8 @@ Implements the following functions:
 # Standard library imports
 import errno
 import importlib.resources as pkg_resources
+import importlib.util
+import inspect
 import json
 import logging
 import os
@@ -23,7 +25,7 @@ import yaml
 from ism.exceptions.exceptions import PropertyKeyNotRecognised, RDBMSNotRecognised, TimestampFormatNotRecognised, \
     ExecutionPhaseNotFound
 from . import core
-from .core.action import Action
+from .core.base_action import BaseAction
 from .core.action_normal_shutdown import ActionNormalShutdown
 from .core.action_emergency_shutdown import ActionEmergencyShutdown
 from .core.action_process_inbound_messages import ActionProcessInboundMessages
@@ -60,7 +62,7 @@ class ISM:
         self.properties['database']['db_path'] = None
         self.properties['runtime']['run_timestamp'] = self.__create_run_timestamp()
         self.properties['runtime']['tag'] = args[0].get('tag', 'default')
-        self.running = False
+        self.properties['running'] = False
         self.ism_thread = None
         self.actions = []
         self.__create_runtime_environment()
@@ -234,9 +236,9 @@ class ISM:
     def set_action_class_vars(self):
         """Set the parent action class vars"""
 
-        Action.dao = self.dao
-        Action.properties = self.properties
-        Action.logger = logging.getLogger('ism.core.Action')
+        BaseAction.dao = self.dao
+        BaseAction.properties = self.properties
+        BaseAction.logger = logging.getLogger('ism.core.Action')
 
     # Public methods
     def get_database_name(self) -> str:
@@ -259,7 +261,19 @@ class ISM:
         specific functionality.
         """
 
-        pass
+        module = importlib.import_module(pack)
+        args = {
+            "dao": self.dao,
+            "properties": self.properties
+        }
+
+        # Import works ok TODO import the db files
+        for action in inspect.getmembers(module, inspect.isclass):
+            if action[0] == 'BaseAction':
+                continue
+            if 'Action' in action[0]:
+                cl_ = getattr(module, action[0])
+                self.actions.append(cl_(args))
 
     def set_tag(self, tag):
         """Set the user tag for the runtime directories"""
@@ -272,9 +286,9 @@ class ISM:
         Method executes in its own thread.
         """
 
-        self.running = True
+        self.properties['running'] = True
         index = 0
-        while self.running:
+        while self.properties['running']:
             self.actions[index].execute()
             index += 1
             if index >= len(self.actions):
@@ -294,7 +308,7 @@ class ISM:
 
     def stop(self):
         """Stop the run in the background thread"""
-        self.running = False
+        self.properties['running'] = False
 
     # Test Methods
     def __get_mysql_db_name(self) -> str:

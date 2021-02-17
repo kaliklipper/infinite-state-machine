@@ -2,10 +2,15 @@
 
 """
 
-from ism.core.action import Action
+from ism.core.base_action import BaseAction
 
 
-class ActionNormalShutdown(Action):
+class ActionNormalShutdown(BaseAction):
 
     def execute(self):
-        pass
+        """For now the emergency and ordinary shutdown is the same"""
+
+        if self.active():
+
+            self.properties['running'] = False
+            self.deactivate()

@@ -22,6 +22,13 @@ class ExecutionPhaseNotFound(Exception):
         super().__init__(self.message)
 
 
+class ExecutionPhaseUnrecognised(Exception):
+
+    def __init(self, message='Passed unrecognised execution_phase'):
+        self.message = message
+        super().__init__(self.message)
+
+
 class MissingDataInControlDatabase(Exception):
 
     def __init(self, message='Record not found in control database'):

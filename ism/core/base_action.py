@@ -4,10 +4,10 @@
 import logging
 
 from ism.exceptions.exceptions import DuplicateDataInControlDatabase, MissingDataInControlDatabase, \
-    ExecutionPhaseNotFound
+    ExecutionPhaseNotFound, ExecutionPhaseUnrecognised
 
 
-class Action:
+class BaseAction:
 
     def __init__(self, *args):
         self.action_name = self.__class__.__name__
@@ -64,6 +64,20 @@ class Action:
             params = (False, action)
 
         self.dao.execute_sql_statement(sql, params)
+
+    def set_execution_phase(self, execution_phase):
+
+        if execution_phase not in ["STARTING", 'RUNNING', 'EMERGENCY_SHUTDOWN', 'NORMAL_SHUTDOWN', 'STOPPED']:
+            raise ExecutionPhaseUnrecognised(f'Unrecognised execution_phase - ({execution_phase}).')
+
+        sql = self.dao.prepare_parameterised_statement(
+            f'UPDATE phases SET state = ? WHERE state = ?'
+        )
+        self.dao.execute_sql_statement(sql, (False, True))
+        sql = self.dao.prepare_parameterised_statement(
+            f'UPDATE phases SET state = ? WHERE execution_phase = "RUNNING";'
+        )
+        self.dao.execute_sql_statement(sql, (True,))
 
     # Private methods
     def __get_execution_phase(self) -> str:

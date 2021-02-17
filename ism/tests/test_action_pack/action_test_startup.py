@@ -1,10 +1,10 @@
 """Express a test action for the unit tests
 
 """
-from ism.core.action import Action
+from ism.core.base_action import BaseAction
 
 
-class ISMActionTestPlugin(Action):
+class ISMActionTestPlugin(BaseAction):
     """Action creates a test file in tmp then exits
 
 
@@ -12,4 +12,7 @@ class ISMActionTestPlugin(Action):
     that the action ran. Existence of only one instance proves
     action exits after one pass.
     """
-    pass
+
+    def execute(self):
+        x = 0
+        pass

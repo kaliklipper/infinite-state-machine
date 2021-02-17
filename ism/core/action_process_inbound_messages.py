@@ -2,10 +2,10 @@
 
 """
 
-from ism.core.action import Action
+from ism.core.base_action import BaseAction
 
 
-class ActionProcessInboundMessages(Action):
+class ActionProcessInboundMessages(BaseAction):
 
     def execute(self):
         pass

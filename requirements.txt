@@ -1,4 +1,7 @@
-mysql~=0.0.2
-mysql-connector-python~=8.0.23
-PyYAML~=5.1
-logger~=1.4
+logger==1.4
+mysql==0.0.2
+mysql-connector-python==8.0.23
+mysqlclient==2.0.3
+protobuf==3.14.0
+PyYAML==5.4.1
+six==1.15.0

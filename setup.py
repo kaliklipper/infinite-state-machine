@@ -13,7 +13,7 @@ setuptools.setup(
     long_description_content_type="text/markdown",
     url="https://github.com/kaliklipper/python-state-machine",
     packages=setuptools.find_packages(),
-    package_data={'ism.core': ['*.json'], 'ism.tests.resources': ['*.yaml']},
+    package_data={'ism.core': ['*.json'], 'ism.tests.test_action_pack': ['*.json']},
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",

@@ -16,11 +16,7 @@ import unittest
 
 # Local application imports
 from time import sleep
-
-from ism import tests
 from ism.ISM import ISM
-import importlib.resources as pkg_resources
-# import ism.tests.test_action_pack
 
 
 class TestISM(unittest.TestCase):
@@ -123,6 +119,17 @@ class TestISM(unittest.TestCase):
         ism.stop()
         sleep(1)
         self.assertEqual('RUNNING', ism.get_execution_phase())
+
+    def test_import_action_pack(self):
+        args = {
+            'properties_file': self.sqlite3_properties
+        }
+        ism = ISM(args)
+        ism.import_action_pack('ism.tests.test_action_pack.action_test_startup')
+        ism.start(join=True)
+        sleep(1)
+        ism.stop()
+        sleep(1)
 
 
 if __name__ == '__main__':
