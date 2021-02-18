@@ -227,7 +227,6 @@ class ISM:
         ISM needs a basic core of actions to run. Import the data from ism.core.data.json.
         """
 
-        from . import core
         with pkg_resources.open_text(core, 'data.json') as data:
             inserts = json.load(data)
             for insert in inserts[self.properties['database']['rdbms'].lower()]['inserts']:
@@ -258,22 +257,52 @@ class ISM:
         """Import an action pack
 
         Application can pass in action packs to enable the ISM to express
-        specific functionality.
+        specific functionality. For an example of how to call this method,
+        see the unit test in tests/test_ism.py (test_import_action_pack).
         """
 
-        module = importlib.import_module(pack)
+        try:
+            module = importlib.import_module(pack)
+        except ModuleNotFoundError as e:
+            logging.error(f'Module not found for argument ({pack})')
+            raise
+
         args = {
             "dao": self.dao,
             "properties": self.properties
         }
 
-        # Import works ok TODO import the db files
         for action in inspect.getmembers(module, inspect.isclass):
             if action[0] == 'BaseAction':
                 continue
             if 'Action' in action[0]:
                 cl_ = getattr(module, action[0])
                 self.actions.append(cl_(args))
+
+        self.import_action_pack_tables(module)
+
+    def import_action_pack_tables(self, module):
+        """"An action will typically create some tables and insert standing data.
+
+        If supporting data and schema files exist, then create the tables and insert
+        the data.
+        """
+
+        path = os.path.split(module.__file__)[0]
+        for root, dirs, files in os.walk(path):
+            if 'schema.json' in files:
+                schema_file = os.path.join(root, 'schema.json')
+                with open(schema_file) as tables:
+                    data = json.load(tables)
+                    for table in data[self.properties['database']['rdbms'].lower()]['tables']:
+                        self.dao.execute_sql_statement(table)
+
+            if 'data.json' in files:
+                data = os.path.join(root, 'data.json')
+                with open(data) as statements:
+                    inserts = json.load(statements)
+                    for insert in inserts[self.properties['database']['rdbms'].lower()]['inserts']:
+                        self.dao.execute_sql_statement(insert)
 
     def set_tag(self, tag):
         """Set the user tag for the runtime directories"""

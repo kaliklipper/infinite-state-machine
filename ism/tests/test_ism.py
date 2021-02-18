@@ -126,8 +126,8 @@ class TestISM(unittest.TestCase):
         }
         ism = ISM(args)
         ism.import_action_pack('ism.tests.test_action_pack.action_test_startup')
-        ism.start(join=True)
-        sleep(1)
+        ism.start()
+        sleep(3)
         ism.stop()
         sleep(1)
 
