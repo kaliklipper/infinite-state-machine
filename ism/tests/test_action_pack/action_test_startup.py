@@ -4,7 +4,7 @@
 from ism.core.base_action import BaseAction
 
 
-class ISMActionTestPlugin(BaseAction):
+class ActionTestPlugin(BaseAction):
     """Action creates a test file in tmp then exits
 
 
@@ -14,5 +14,10 @@ class ISMActionTestPlugin(BaseAction):
     """
 
     def execute(self):
-        x = 0
-        pass
+
+        if self.active():
+
+            with open('/tmp/test_import_action_pack.txt', 'w') as test_file:
+                test_file.write('Test string from class ISMActionTestPlugin(BaseAction)')
+
+            self.deactivate()

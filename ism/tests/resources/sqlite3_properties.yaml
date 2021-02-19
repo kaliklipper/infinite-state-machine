@@ -5,10 +5,9 @@ database:
 logging:
   file: ism.log
   level: debug
-  propagate: true
+  propagate: false
 
 runtime:
   root_dir: /tmp/ism
   use_tags: true
   sys_tag_format: epoch_milliseconds
-  run_mode: test

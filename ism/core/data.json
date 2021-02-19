@@ -1,28 +1,28 @@
 {
     "mysql": {
         "inserts": [
-            "INSERT INTO actions VALUES(1,'ActionConfirmReadyToRun','STARTING','null',1);",
-            "INSERT INTO actions VALUES(2,'ActionNormalShutdown','ALL','null',0);",
-            "INSERT INTO actions VALUES(3,'ActionEmergencyShutdown','ALL','null',0);",
-            "INSERT INTO actions VALUES(5,'ActionProcessInboundMessages','RUNNING','null',0);",
-            "INSERT INTO phases VALUES(1,0,'EMERGENCY_SHUTDOWN','Phase is emergency shutdown');",
-            "INSERT INTO phases VALUES(2,0,'NORMAL_SHUTDOWN','Phase is shutting down normally');",
-            "INSERT INTO phases VALUES(3,0,'RUNNING','Phase is running');",
-            "INSERT INTO phases VALUES(4,1,'STARTING','Phase is starting');",
-            "INSERT INTO phases VALUES(5,0,'STOPPED','Phase is stopped');"
+            "INSERT INTO actions VALUES(NULL,'ActionConfirmReadyToRun','STARTING','null',1)",
+            "INSERT INTO actions VALUES(NULL,'ActionNormalShutdown','ALL','null',0)",
+            "INSERT INTO actions VALUES(NULL,'ActionEmergencyShutdown','ALL','null',0)",
+            "INSERT INTO actions VALUES(NULL,'ActionProcessInboundMessages','RUNNING','null',0)",
+            "INSERT INTO phases VALUES(NULL,0,'EMERGENCY_SHUTDOWN','Phase is emergency shutdown')",
+            "INSERT INTO phases VALUES(NULL,0,'NORMAL_SHUTDOWN','Phase is shutting down normally')",
+            "INSERT INTO phases VALUES(NULL,0,'RUNNING','Phase is running')",
+            "INSERT INTO phases VALUES(NULL,1,'STARTING','Phase is starting')",
+            "INSERT INTO phases VALUES(NULL,0,'STOPPED','Phase is stopped')"
         ]
     },
     "sqlite3": {
         "inserts": [
-            "INSERT INTO actions VALUES(1,'ActionConfirmReadyToRun','STARTING','null',1);",
-            "INSERT INTO actions VALUES(2,'ActionNormalShutdown','ALL','null',0);",
-            "INSERT INTO actions VALUES(3,'ActionEmergencyShutdown','ALL','null',0);",
-            "INSERT INTO actions VALUES(5,'ActionProcessInboundMessages','RUNNING','null',0);",
-            "INSERT INTO phases VALUES(1,0,'EMERGENCY_SHUTDOWN','Phase is emergency shutdown');",
-            "INSERT INTO phases VALUES(2,0,'NORMAL_SHUTDOWN','Phase is shutting down normally');",
-            "INSERT INTO phases VALUES(3,0,'RUNNING','Phase is running');",
-            "INSERT INTO phases VALUES(4,1,'STARTING','Phase is starting');",
-            "INSERT INTO phases VALUES(5,0,'STOPPED','Phase is stopped');"
+            "INSERT INTO actions VALUES(NULL,'ActionConfirmReadyToRun','STARTING','null',1)",
+            "INSERT INTO actions VALUES(NULL,'ActionNormalShutdown','ALL','null',0)",
+            "INSERT INTO actions VALUES(NULL,'ActionEmergencyShutdown','ALL','null',0)",
+            "INSERT INTO actions VALUES(NULL,'ActionProcessInboundMessages','RUNNING','null',0)",
+            "INSERT INTO phases VALUES(NULL,0,'EMERGENCY_SHUTDOWN','Phase is emergency shutdown')",
+            "INSERT INTO phases VALUES(NULL,0,'NORMAL_SHUTDOWN','Phase is shutting down normally')",
+            "INSERT INTO phases VALUES(NULL,0,'RUNNING','Phase is running')",
+            "INSERT INTO phases VALUES(NULL,1,'STARTING','Phase is starting')",
+            "INSERT INTO phases VALUES(NULL,0,'STOPPED','Phase is stopped')"
         ]
     }
 }

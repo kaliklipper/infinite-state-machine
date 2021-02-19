@@ -7,6 +7,10 @@ The module contains the following functions:
     * test_properties_are_read_in - Test that the values in the
     properties file are read in correctly.
 
+    Assumes the test machine has sqlite3 and MySql installed.
+    MySql requires the user 'state_admin' to exist and password of
+    wbA7C2B6R7.
+
 """
 
 # Standard library imports
@@ -121,15 +125,21 @@ class TestISM(unittest.TestCase):
         self.assertEqual('RUNNING', ism.get_execution_phase())
 
     def test_import_action_pack(self):
+        """Import the test action pack and assert it creates the file '/tmp/test_import_action_pack.txt'"""
+
+        if os.path.exists('/tmp/test_import_action_pack.txt'):
+            os.remove('/tmp/test_import_action_pack.txt')
+
         args = {
             'properties_file': self.sqlite3_properties
         }
         ism = ISM(args)
         ism.import_action_pack('ism.tests.test_action_pack.action_test_startup')
         ism.start()
-        sleep(3)
+        sleep(1)
         ism.stop()
         sleep(1)
+        self.assertTrue(os.path.exists('/tmp/test_import_action_pack.txt'))
 
 
 if __name__ == '__main__':

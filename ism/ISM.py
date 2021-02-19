@@ -232,12 +232,20 @@ class ISM:
             for insert in inserts[self.properties['database']['rdbms'].lower()]['inserts']:
                 self.dao.execute_sql_statement(insert)
 
-    def set_action_class_vars(self):
-        """Set the parent action class vars"""
+    def __run(self):
+        """Iterates over the array of imported actions and calls each one's
+        execute method.
 
-        BaseAction.dao = self.dao
-        BaseAction.properties = self.properties
-        BaseAction.logger = logging.getLogger('ism.core.Action')
+        Method executes in its own thread.
+        """
+
+        self.properties['running'] = True
+        index = 0
+        while self.properties['running']:
+            self.actions[index].execute()
+            index += 1
+            if index >= len(self.actions):
+                index = 0
 
     # Public methods
     def get_database_name(self) -> str:
@@ -308,20 +316,7 @@ class ISM:
         """Set the user tag for the runtime directories"""
         self.properties['runtime']['tag'] = tag
 
-    def run(self):
-        """Iterates over the array of imported actions and calls each one's
-        execute method.
 
-        Method executes in its own thread.
-        """
-
-        self.properties['running'] = True
-        index = 0
-        while self.properties['running']:
-            self.actions[index].execute()
-            index += 1
-            if index >= len(self.actions):
-                index = 0
 
     def start(self, join=False):
         """Start running the state machine main loop in the background
@@ -330,7 +325,7 @@ class ISM:
         """
 
         self.logger.info('Starting run() thread')
-        self.ism_thread = threading.Thread(target=self.run, daemon=True)
+        self.ism_thread = threading.Thread(target=self.__run, daemon=True)
         self.ism_thread.start()
         if join:
             self.ism_thread.join()
