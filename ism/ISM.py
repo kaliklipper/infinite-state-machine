@@ -23,7 +23,7 @@ import yaml
 
 # Local application imports
 from ism.exceptions.exceptions import PropertyKeyNotRecognised, RDBMSNotRecognised, TimestampFormatNotRecognised, \
-    ExecutionPhaseNotFound
+    ExecutionPhaseNotFound, MalformedActionPack
 from . import core
 from .core.base_action import BaseAction
 from .core.action_normal_shutdown import ActionNormalShutdown
@@ -267,36 +267,59 @@ class ISM:
         Application can pass in action packs to enable the ISM to express
         specific functionality. For an example of how to call this method,
         see the unit test in tests/test_ism.py (test_import_action_pack).
+
+        Each action pack is a python package containing:
+            * At least one action class inheriting from ism.core.BaseAction
+            * A data.json file containing at least the insert statements for the
+            action in the control DB.
+            * Optionally a schema.json file contain the create statements for any
+            tables the action needs in the control DB.
+
+            The package should contain nothing else and no sub packages.
         """
-
-        try:
-            module = importlib.import_module(pack)
-        except ModuleNotFoundError as e:
-            logging.error(f'Module not found for argument ({pack})')
-            raise
-
-        args = {
+        import pkgutil
+        action_args = {
             "dao": self.dao,
             "properties": self.properties
         }
 
-        for action in inspect.getmembers(module, inspect.isclass):
-            if action[0] == 'BaseAction':
-                continue
-            if 'Action' in action[0]:
-                cl_ = getattr(module, action[0])
-                self.actions.append(cl_(args))
+        try:
+            # Import the package containing the actions
+            package = importlib.import_module(pack)
+            # Find each action module in the package
+            for importer, modname, ispkg in pkgutil.iter_modules(package.__path__):
+                # Should not be any sub packages in there
+                if ispkg:
+                    raise MalformedActionPack(
+                        f'Passed malformed action pack ({pack}). Unexpected sub packages {modname}'
+                    )
+                # Import the module containing the action
+                module = importlib.import_module(f'{pack}.{importer.find_spec(modname).name}')
+                # Get the name of the action class, instantiate it and add to the collection of actions
+                for action in inspect.getmembers(module, inspect.isclass):
+                    if action[0] == 'BaseAction':
+                        continue
+                    if 'Action' in action[0]:
+                        cl_ = getattr(module, action[0])
+                        self.actions.append(cl_(action_args))
 
-        self.import_action_pack_tables(module)
+            # Get the supporting DB file/s
+            self.import_action_pack_tables(package)
 
-    def import_action_pack_tables(self, module):
+        except ModuleNotFoundError as e:
+            logging.error(f'Module/s not found for argument ({pack})')
+            raise
+
+    def import_action_pack_tables(self, package):
         """"An action will typically create some tables and insert standing data.
 
-        If supporting data and schema files exist, then create the tables and insert
-        the data.
+        If supporting schema file exists, then create the tables. A data.json
+         file must exist with at least one insert for the actions table or the action
+         execute method wil not be able to activate or deactivate..
         """
 
-        path = os.path.split(module.__file__)[0]
+        inserts_found = False
+        path = os.path.split(package.__file__)[0]
         for root, dirs, files in os.walk(path):
             if 'schema.json' in files:
                 schema_file = os.path.join(root, 'schema.json')
@@ -311,12 +334,14 @@ class ISM:
                     inserts = json.load(statements)
                     for insert in inserts[self.properties['database']['rdbms'].lower()]['inserts']:
                         self.dao.execute_sql_statement(insert)
+                inserts_found = True
+
+            if not inserts_found:
+                raise MalformedActionPack(f'No insert statements found for action pack ({package})')
 
     def set_tag(self, tag):
         """Set the user tag for the runtime directories"""
         self.properties['runtime']['tag'] = tag
-
-
 
     def start(self, join=False):
         """Start running the state machine main loop in the background

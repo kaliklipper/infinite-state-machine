@@ -18,6 +18,6 @@ class ActionTestPlugin(BaseAction):
         if self.active():
 
             with open('/tmp/test_import_action_pack.txt', 'w') as test_file:
-                test_file.write('Test string from class ISMActionTestPlugin(BaseAction)')
+                test_file.write('Test string from class ISMActionTestPlugin(BaseAction)\n')
 
             self.deactivate()

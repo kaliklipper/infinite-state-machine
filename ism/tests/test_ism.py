@@ -125,21 +125,27 @@ class TestISM(unittest.TestCase):
         self.assertEqual('RUNNING', ism.get_execution_phase())
 
     def test_import_action_pack(self):
-        """Import the test action pack and assert it creates the file '/tmp/test_import_action_pack.txt'"""
+        """Import the test action pack and assert it creates the file '/tmp/test_import_action_pack.txt'
 
-        if os.path.exists('/tmp/test_import_action_pack.txt'):
-            os.remove('/tmp/test_import_action_pack.txt')
+        The action should write a string to the file then deactivate, leaving the file with a line count of 1.
+        """
+
+        test_file = '/tmp/test_import_action_pack.txt'
+        if os.path.exists(test_file):
+            os.remove(test_file)
 
         args = {
             'properties_file': self.sqlite3_properties
         }
         ism = ISM(args)
-        ism.import_action_pack('ism.tests.test_action_pack.action_test_startup')
+        ism.import_action_pack('ism.tests.test_action_pack')
         ism.start()
         sleep(1)
         ism.stop()
         sleep(1)
-        self.assertTrue(os.path.exists('/tmp/test_import_action_pack.txt'))
+        self.assertTrue(os.path.exists(test_file))
+        with open(test_file, 'r') as file:
+            self.assertTrue(len(file.readlines()) == 1, f'Unexpected line count for {test_file}, 1 expected.')
 
 
 if __name__ == '__main__':

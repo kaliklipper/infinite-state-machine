@@ -29,6 +29,13 @@ class ExecutionPhaseUnrecognised(Exception):
         super().__init__(self.message)
 
 
+class MalformedActionPack(Exception):
+
+    def __init(self, message='Passed malformed action pack for import.'):
+        self.message = message
+        super().__init__(self.message)
+
+
 class MissingDataInControlDatabase(Exception):
 
     def __init(self, message='Record not found in control database'):
