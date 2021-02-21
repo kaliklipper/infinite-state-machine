@@ -3,7 +3,7 @@ An Infinite State Machine implemented in python
 
 Why "Infinite"?
 
-Finite state machines are a great method fopr implementing event driven applications and operating systems. 
+Finite state machines are a great method for implementing event driven applications and operating systems. 
 However, when implemented, they become fixed implementations of an application that do not easily lend themselves
 to refactoring into another application.
 

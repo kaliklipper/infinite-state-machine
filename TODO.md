@@ -1,7 +1,7 @@
 # State Machine
 ===============
 - [ ] Create ISM functions
-  * [ ] Import action packs
+  * [x] Import action packs
   * [x] Import settings from file
   * [x] Database creation / DAL
   * [x] Import SQL statements
