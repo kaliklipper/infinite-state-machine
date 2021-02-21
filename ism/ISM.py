@@ -25,7 +25,6 @@ import yaml
 from ism.exceptions.exceptions import PropertyKeyNotRecognised, RDBMSNotRecognised, TimestampFormatNotRecognised, \
     ExecutionPhaseNotFound, MalformedActionPack
 from . import core
-from .core.base_action import BaseAction
 from .core.action_normal_shutdown import ActionNormalShutdown
 from .core.action_emergency_shutdown import ActionEmergencyShutdown
 from .core.action_process_inbound_messages import ActionProcessInboundMessages
@@ -315,7 +314,7 @@ class ISM:
 
         If supporting schema file exists, then create the tables. A data.json
          file must exist with at least one insert for the actions table or the action
-         execute method wil not be able to activate or deactivate..
+         execute method will not be able to activate or deactivate..
         """
 
         inserts_found = False

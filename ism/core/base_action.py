@@ -75,9 +75,9 @@ class BaseAction:
         )
         self.dao.execute_sql_statement(sql, (False, True))
         sql = self.dao.prepare_parameterised_statement(
-            f'UPDATE phases SET state = ? WHERE execution_phase = "RUNNING";'
+            f'UPDATE phases SET state = ? WHERE execution_phase = ?;'
         )
-        self.dao.execute_sql_statement(sql, (True,))
+        self.dao.execute_sql_statement(sql, (True, execution_phase))
 
     # Private methods
     def __get_execution_phase(self) -> str:

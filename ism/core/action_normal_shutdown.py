@@ -8,9 +8,10 @@ from ism.core.base_action import BaseAction
 class ActionNormalShutdown(BaseAction):
 
     def execute(self):
-        """For now the emergency and ordinary shutdown is the same"""
+        """Normal shutdown so activate ActionConfirmReadyToStop"""
 
         if self.active():
 
-            self.properties['running'] = False
+            self.set_execution_phase('NORMAL_SHUTDOWN')
+            self.activate('ActionConfirmReadyToStop')
             self.deactivate()
