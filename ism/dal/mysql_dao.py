@@ -27,6 +27,7 @@ class MySqlDAO(DAOInterface):
         self.password = args[0]['database']['password']
         self.run_db = args[0]['database']['run_db']
         self.user = args[0]['database']['user']
+        self.raise_on_sql_error = args[0].get('database', {}).get('raise_on_sql_error', False)
 
     def close_connection(self):
         """Close the connection if open"""
@@ -58,6 +59,8 @@ class MySqlDAO(DAOInterface):
             return rows
         except mysql.connector.Error as err:
             self.logger.error(err.msg)
+            if self.raise_on_sql_error:
+                raise err
 
     def execute_sql_statement(self, sql, params=()):
         """Execute a SQL statement
@@ -72,6 +75,8 @@ class MySqlDAO(DAOInterface):
             self.close_connection()
         except mysql.connector.Error as err:
             self.logger.error(err.msg)
+            if self.raise_on_sql_error:
+                raise err
 
     def open_connection(self, *args) -> mysql.connector.connection_cext.CMySQLConnection:
         """Opens a database connection.

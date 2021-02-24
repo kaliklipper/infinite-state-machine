@@ -52,6 +52,16 @@ class BaseAction:
         params = (True, action)
         self.dao.execute_sql_statement(sql, params)
 
+    def clear_payload(self):
+        """Clear the child action's payload"""
+        sql = self.dao.prepare_parameterised_statement(
+            'UPDATE actions SET payload = NULL WHERE action = ?'
+        )
+        self.dao.execute_sql_statement(
+            sql,
+            (self.action_name,)
+        )
+
     def deactivate(self, action=None):
         """Deactivate the named action or this action by default"""
 
@@ -64,6 +74,17 @@ class BaseAction:
             params = (False, action)
 
         self.dao.execute_sql_statement(sql, params)
+
+    def get_payload(self) -> list:
+        """Get the payload for the child action"""
+
+        sql = self.dao.prepare_parameterised_statement(
+            'SELECT payload FROM actions WHERE action = ?'
+        )
+        return self.dao.execute_sql_query(
+            sql,
+            (self.action_name,)
+        )
 
     def set_execution_phase(self, execution_phase):
 

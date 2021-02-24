@@ -1,6 +1,7 @@
 database:
   rdbms: sqlite3
   db_name: ism_db
+  raise_on_sql_error: True
 
 logging:
   file: ism.log
@@ -9,5 +10,10 @@ logging:
 
 runtime:
   root_dir: /tmp/ism
-  use_tags: true
   sys_tag_format: epoch_milliseconds
+
+test:
+  support:
+    inbound: /tmp/ism/test_support/inbound
+    outbound: /tmp/ism/test_support/outbound
+    archive: /tmp/ism/test_support/archive

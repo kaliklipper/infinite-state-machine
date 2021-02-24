@@ -1,10 +1,10 @@
 {
     "mysql": {
         "inserts": [
-            "INSERT INTO actions VALUES(NULL,'ActionConfirmReadyToRun','STARTING','null',1)",
-            "INSERT INTO actions VALUES(NULL,'ActionNormalShutdown','ALL','null',0)",
-            "INSERT INTO actions VALUES(NULL,'ActionEmergencyShutdown','ALL','null',0)",
-            "INSERT INTO actions VALUES(NULL,'ActionProcessInboundMessages','RUNNING','null',0)",
+            "INSERT INTO actions VALUES(NULL,'ActionConfirmReadyToRun','STARTING',NULL,1)",
+            "INSERT INTO actions VALUES(NULL,'ActionNormalShutdown','ALL',NULL,0)",
+            "INSERT INTO actions VALUES(NULL,'ActionEmergencyShutdown','ALL',NULL,0)",
+            "INSERT INTO actions VALUES(NULL,'ActionProcessInboundMessages','RUNNING',NULL,0)",
             "INSERT INTO phases VALUES(NULL,0,'EMERGENCY_SHUTDOWN','Phase is emergency shutdown')",
             "INSERT INTO phases VALUES(NULL,0,'NORMAL_SHUTDOWN','Phase is shutting down normally')",
             "INSERT INTO phases VALUES(NULL,0,'RUNNING','Phase is running')",
@@ -14,10 +14,10 @@
     },
     "sqlite3": {
         "inserts": [
-            "INSERT INTO actions VALUES(NULL,'ActionConfirmReadyToRun','STARTING','null',1)",
-            "INSERT INTO actions VALUES(NULL,'ActionNormalShutdown','ALL','null',0)",
-            "INSERT INTO actions VALUES(NULL,'ActionEmergencyShutdown','ALL','null',0)",
-            "INSERT INTO actions VALUES(NULL,'ActionProcessInboundMessages','RUNNING','null',0)",
+            "INSERT INTO actions VALUES(NULL,'ActionConfirmReadyToRun','STARTING',NULL,1)",
+            "INSERT INTO actions VALUES(NULL,'ActionNormalShutdown','ALL',NULL,0)",
+            "INSERT INTO actions VALUES(NULL,'ActionEmergencyShutdown','ALL',NULL,0)",
+            "INSERT INTO actions VALUES(NULL,'ActionProcessInboundMessages','RUNNING',NULL,0)",
             "INSERT INTO phases VALUES(NULL,0,'EMERGENCY_SHUTDOWN','Phase is emergency shutdown')",
             "INSERT INTO phases VALUES(NULL,0,'NORMAL_SHUTDOWN','Phase is shutting down normally')",
             "INSERT INTO phases VALUES(NULL,0,'RUNNING','Phase is running')",

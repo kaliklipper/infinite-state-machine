@@ -1,0 +1,20 @@
+{
+    "mysql": {
+        "inserts": [
+            "INSERT INTO actions VALUES(NULL,'ActionRunSqlQuery','RUNNING',NULL,0)",
+            "INSERT INTO actions VALUES(NULL,'ActionInboundTestMsg','RUNNING',NULL,0)",
+            "INSERT INTO actions VALUES(NULL,'ActionOutboundTestMsg','RUNNING',NULL,0)",
+            "INSERT INTO actions VALUES(NULL,'ActionBeforeTestSupport','STARTING',NULL,1)"
+
+
+        ]
+    },
+    "sqlite3": {
+        "inserts": [
+            "INSERT INTO actions VALUES(NULL,'ActionRunSqlQuery','RUNNING',NULL,0)",
+            "INSERT INTO actions VALUES(NULL,'ActionInboundTestMsg','RUNNING',NULL,0)",
+            "INSERT INTO actions VALUES(NULL,'ActionOutboundTestMsg','RUNNING',NULL,0)",
+            "INSERT INTO actions VALUES(NULL,'ActionBeforeTestSupport','STARTING',NULL,1)"
+        ]
+    }
+}

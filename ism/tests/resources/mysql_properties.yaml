@@ -3,6 +3,7 @@ database:
   db_name: ism
   host: localhost
   user: state_admin
+  raise_on_sql_error: True
 
 logging:
   file: ism.log
@@ -12,4 +13,9 @@ logging:
 runtime:
   root_dir: /tmp/ism
   sys_tag_format: epoch_milliseconds
-  run_mode: test
+
+test:
+  support:
+    inbound: /tmp/ism/test_support/inbound
+    outbound: /tmp/ism/test_support/outbound
+    archive: /tmp/ism/test_support/archive

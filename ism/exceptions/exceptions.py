@@ -43,6 +43,12 @@ class MissingDataInControlDatabase(Exception):
         super().__init__(self.message)
 
 
+class OrphanedSemaphoreFile(Exception):
+
+    def __init(self, message='Semaphore file without associated message file.'):
+        self.message = message
+        super().__init__(self.message)
+
 class PropertyKeyNotRecognised(Exception):
 
     def __init__(self, message='Property Key not recognised'):

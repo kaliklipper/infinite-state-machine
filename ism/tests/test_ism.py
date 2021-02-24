@@ -14,12 +14,16 @@ The module contains the following functions:
 """
 
 # Standard library imports
+import json
 import os
 import re
 import unittest
 
 # Local application imports
 from time import sleep
+
+import yaml
+
 from ism.ISM import ISM
 
 
@@ -29,6 +33,23 @@ class TestISM(unittest.TestCase):
     dir = os.path.dirname(os.path.abspath(__file__))
     sqlite3_properties = f'{dir}{path_sep}resources{path_sep}sqlite3_properties.yaml'
     mysql_properties = f'{dir}{path_sep}resources{path_sep}mysql_properties.yaml'
+
+    @staticmethod
+    def get_properties(properties_file) -> dict:
+        """Read in the properties file"""
+        with open(properties_file, 'r') as file:
+            return yaml.safe_load(file)
+
+    @staticmethod
+    def SendTestSupportMsg(msg, sender_id, inbound):
+
+        if not os.path.exists(inbound):
+            os.makedirs(inbound)
+
+        with open(f'{inbound}{os.path.sep}{sender_id}.json', 'w') as message:
+            message.write(json.dumps(msg))
+        with open(f'{inbound}{os.path.sep}{sender_id}.smp', 'w') as semaphore:
+            semaphore.write('')
 
     def test_properties_file_set(self):
         """Test that ISM sets path to the tests file."""
@@ -106,12 +127,10 @@ class TestISM(unittest.TestCase):
         self.assertEqual('RUNNING', ism.get_execution_phase())
 
     def test_action_import_mysql(self):
-        """Test that the ism imports the core actions and runs in the background
-        as a daemon.
+        """Test that the ism imports the core actions."""
 
-        TODO Create a test helper action pack that can be accessed via a /tmp/ism/test/inbound dir
-        TODO that allows inbound messages to activate and deactivate actions and maybe more ...
-        """
+        inbound = self.get_properties(self.mysql_properties)['test']['support']['inbound']
+
         args = {
             'properties_file': self.mysql_properties,
             'database': {
@@ -119,10 +138,18 @@ class TestISM(unittest.TestCase):
             }
         }
         ism = ISM(args)
-        self.assertEqual('STARTING', ism.get_execution_phase())
-        ism.start()
-        sleep(1)
-        # self.assertEqual('RUNNING', ism.get_execution_phase())
+        ism.import_action_pack('ism.tests.support')
+
+        message = {
+            "action": "ActionRunSqlQuery",
+            "payload": {
+                "sql": "SELECT * from actions;",
+                "sender_id": 1
+            }
+        }
+        self.SendTestSupportMsg(message, message['payload']['sender_id'], inbound)
+        ism.start(join=True)
+        # TODO Wait for reply and assert against actions records
         ism.stop()
 
     def test_import_action_pack(self):

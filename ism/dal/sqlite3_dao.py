@@ -7,7 +7,7 @@ import logging
 import sqlite3
 
 # Local application imports
-from ism.exceptions.exceptions import UnrecognisedParameterisationCharacter, ExecutionPhaseNotFound
+from ism.exceptions.exceptions import UnrecognisedParameterisationCharacter
 from ism.interfaces.dao_interface import DAOInterface
 
 
@@ -16,6 +16,7 @@ class Sqlite3DAO(DAOInterface):
 
     def __init__(self, *args):
         self.db_path = args[0]['database']['db_path']
+        self.raise_on_sql_error = args[0].get('database', {}).get('raise_on_sql_error', False)
         self.logger = logging.getLogger('ism.sqlite3_dao.Sqlite3DAO')
         self.logger.info('Initialising Sqlite3DAO.')
         self.cnx = None
@@ -38,21 +39,30 @@ class Sqlite3DAO(DAOInterface):
 
         @:param query. { sql: 'SELECT ...', params: params
         """
-
-        self.open_connection()
-        cursor = self.cnx.cursor()
-        cursor.execute(sql, params)
-        rows = cursor.fetchall()
-        self.close_connection()
-        return rows
+        try:
+            self.open_connection()
+            cursor = self.cnx.cursor()
+            cursor.execute(sql, params)
+            rows = cursor.fetchall()
+            self.close_connection()
+            return rows
+        except sqlite3.Error as e:
+            logging.error(f'Error executing sql query ({sql}) ({params}): {e}')
+            if self.raise_on_sql_error:
+                raise e
 
     def execute_sql_statement(self, sql, params=()):
         """Execute a SQL statement and return the exit code"""
-        self.open_connection()
-        cursor = self.cnx.cursor()
-        cursor.execute(sql, params)
-        self.cnx.commit()
-        self.close_connection()
+        try:
+            self.open_connection()
+            cursor = self.cnx.cursor()
+            cursor.execute(sql, params)
+            self.cnx.commit()
+            self.close_connection()
+        except sqlite3.Error as e:
+            logging.error(f'Error executing sql query ({sql}) ({params}): {e}')
+            if self.raise_on_sql_error:
+                raise e
 
     def open_connection(self, *args) -> sqlite3.Connection:
         """Creates a database connection.
