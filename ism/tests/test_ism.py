@@ -51,6 +51,23 @@ class TestISM(unittest.TestCase):
         with open(f'{inbound}{os.path.sep}{sender_id}.smp', 'w') as semaphore:
             semaphore.write('')
 
+    @staticmethod
+    def wait_for_test_message_reply(sender_id, outbound, retries=10) -> bool:
+        """Wait for an expected reply to a test support message"""
+
+        expected_file = f'{outbound}{os.path.sep}{sender_id}.json'
+
+        while retries > 0:
+            if os.path.exists(expected_file):
+                break
+            retries -= 1
+            sleep(1)
+
+        if retries == 0:
+            return False
+
+        return True
+
     def test_properties_file_set(self):
         """Test that ISM sets path to the tests file."""
         args = {
@@ -113,7 +130,7 @@ class TestISM(unittest.TestCase):
     def test_action_import_sqlite3(self):
         """Test that the ism imports the core actions and runs in the background
         as a daemon.
-
+        TODO Change this to use the test action pack
         """
         args = {
             'properties_file': self.sqlite3_properties
@@ -127,10 +144,16 @@ class TestISM(unittest.TestCase):
         self.assertEqual('RUNNING', ism.get_execution_phase())
 
     def test_action_import_mysql(self):
-        """Test that the ism imports the core actions."""
+        """Test that the ism imports the core actions.
+
+        Test checks that the expected actions are detailed in the actions table in the control DB
+        and that they are in the correct state.
+        """
 
         inbound = self.get_properties(self.mysql_properties)['test']['support']['inbound']
+        outbound = self.get_properties(self.mysql_properties)['test']['support']['outbound']
 
+        # Initialise / Instantiate the state machine
         args = {
             'properties_file': self.mysql_properties,
             'database': {
@@ -138,8 +161,14 @@ class TestISM(unittest.TestCase):
             }
         }
         ism = ISM(args)
+
+        # Import the test support action pack so we can query the DB
         ism.import_action_pack('ism.tests.support')
 
+        # Start the state machine
+        ism.start()
+
+        # Drop a test message into the support pack's inbound directory.
         message = {
             "action": "ActionRunSqlQuery",
             "payload": {
@@ -148,8 +177,31 @@ class TestISM(unittest.TestCase):
             }
         }
         self.SendTestSupportMsg(message, message['payload']['sender_id'], inbound)
-        ism.start(join=True)
-        # TODO Wait for reply and assert against actions records
+
+        # Wait for the reply
+        self.assertTrue(
+            self.wait_for_test_message_reply(message['payload']['sender_id'], outbound),
+            'Failed to find expected reply to test support message.'
+        )
+
+        #  Verify that the core actions are in the expected state
+        with open(f'{outbound}{os.path.sep}1.json', 'r') as file:
+            actions = json.loads(file.read())
+
+        # ActionConfirmReadyToRun should be inactive
+        self.assertEqual(
+            0,
+            actions['query_result'][0][4],
+            'ActionConfirmReadyToRun should be inactive'
+        )
+        # ActionProcessInboundMessages should be active
+        self.assertEqual(
+            1,
+            actions['query_result'][4][4],
+            'ActionProcessInboundMessages should be active'
+        )
+
+        # End of test
         ism.stop()
 
     def test_import_action_pack(self):

@@ -36,7 +36,7 @@ class BaseAction:
 
         try:
             if this_action[0][0]:
-                if this_action[0][1] == phase:
+                if this_action[0][1] == phase or this_action[0][1] == 'ALL':
                     return True
             return False
         except Exception as e:
