@@ -49,7 +49,7 @@ class ActionInboundTestMsg(BaseAction):
                 with open(msg_file, 'r') as message_file:
                     message = json.loads(message_file.read())
                     sql = self.dao.prepare_parameterised_statement(
-                        'INSERT INTO test_support_messages_inbound (action, payload) VALUES(?, ?)'
+                        'INSERT INTO test_support_messages_inbound (action, payload) VALUES (?, ?)'
                     )
                     self.dao.execute_sql_statement(
                             sql,

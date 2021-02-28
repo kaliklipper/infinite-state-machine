@@ -7,8 +7,8 @@
     },
     "sqlite3": {
         "tables": [
-            "CREATE TABLE test_support_messages_inbound (\nid INTEGER NOT NULL PRIMARY KEY,\naction TEXT -- the action this message is for\npayload TEXT -- JSON payload for action\nsender_id INTEGER -- ID assigned by sender)",
-            "CREATE TABLE test_support_messages_outbound (\nid INTEGER NOT NULL PRIMARY KEY,\nmessage TEXT -- The outbound message as a JSON string,\nsender_id INTEGER -- Set if message is a response to an inbound message)"
+            "CREATE TABLE test_support_messages_inbound (\nid INTEGER NOT NULL PRIMARY KEY,\naction TEXT, -- the action this message is for\npayload TEXT, -- JSON payload for action\nsender_id INTEGER -- ID assigned by sender\n)",
+            "CREATE TABLE test_support_messages_outbound (\nid INTEGER NOT NULL PRIMARY KEY,\nmessage TEXT, -- The outbound message as a JSON string\nsender_id INTEGER -- Set if message is a response to an inbound message\n)"
         ]
     }
 }

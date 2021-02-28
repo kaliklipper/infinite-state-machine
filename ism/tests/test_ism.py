@@ -128,20 +128,62 @@ class TestISM(unittest.TestCase):
                         f'Mysql DB name ({db_name}) failed to match expected pattern')
 
     def test_action_import_sqlite3(self):
-        """Test that the ism imports the core actions and runs in the background
-        as a daemon.
-        TODO Change this to use the test action pack
+        """Test that the ism imports the core actions.
+
+        Test checks that the expected actions are detailed in the actions table in the control DB
+        and that they are in the correct state.
         """
+
+        inbound = self.get_properties(self.mysql_properties)['test']['support']['inbound']
+        outbound = self.get_properties(self.mysql_properties)['test']['support']['outbound']
+
+        # Initialise / Instantiate the state machine
         args = {
             'properties_file': self.sqlite3_properties
         }
         ism = ISM(args)
-        self.assertEqual('STARTING', ism.get_execution_phase())
+
+        # Import the test support action pack so we can query the DB
+        ism.import_action_pack('ism.tests.support')
+
+        # Start the state machine
         ism.start()
-        sleep(1)
+
+        # Drop a test message into the support pack's inbound directory.
+        message = {
+            "action": "ActionRunSqlQuery",
+            "payload": {
+                "sql": "SELECT * from actions;",
+                "sender_id": 1
+            }
+        }
+        self.SendTestSupportMsg(message, message['payload']['sender_id'], inbound)
+
+        # Wait for the reply
+        self.assertTrue(
+            self.wait_for_test_message_reply(message['payload']['sender_id'], outbound),
+            'Failed to find expected reply to test support message.'
+        )
+
+        #  Verify that the core actions are in the expected state
+        with open(f'{outbound}{os.path.sep}1.json', 'r') as file:
+            actions = json.loads(file.read())
+
+        # ActionConfirmReadyToRun should be inactive
+        self.assertEqual(
+            0,
+            actions['query_result'][0][4],
+            'ActionConfirmReadyToRun should be inactive'
+        )
+        # ActionProcessInboundMessages should be active
+        self.assertEqual(
+            1,
+            actions['query_result'][4][4],
+            'ActionProcessInboundMessages should be active'
+        )
+
+        # End of test
         ism.stop()
-        sleep(1)
-        self.assertEqual('RUNNING', ism.get_execution_phase())
 
     def test_action_import_mysql(self):
         """Test that the ism imports the core actions.
