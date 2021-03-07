@@ -14,7 +14,7 @@
 
 # Unit Tests
 - [x] Test framework for ISM
-- [ ] Create a test helper action pack
+- [x] Create a test helper action pack
 
 # Logging
 - [x] Add logging to ISM and DAO

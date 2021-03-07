@@ -25,10 +25,11 @@ import yaml
 from ism.exceptions.exceptions import PropertyKeyNotRecognised, RDBMSNotRecognised, TimestampFormatNotRecognised, \
     ExecutionPhaseNotFound, MalformedActionPack
 from . import core
+from .core.action_check_timers import ActionCheckTimers
 from .core.action_normal_shutdown import ActionNormalShutdown
 from .core.action_emergency_shutdown import ActionEmergencyShutdown
-from .core.action_process_inbound_messages import ActionProcessInboundMessages
 from .core.action_confirm_ready_to_run import ActionConfirmReadyToRun
+from .core.action_confirm_ready_to_stop import ActionConfirmReadyToStop
 
 
 class ISM:
@@ -215,8 +216,9 @@ class ISM:
             "dao": self.dao,
             "properties": self.properties
         }
-        self.actions.append(ActionProcessInboundMessages(args))
+        self.actions.append(ActionCheckTimers(args))
         self.actions.append(ActionConfirmReadyToRun(args))
+        self.actions.append(ActionConfirmReadyToStop(args))
         self.actions.append(ActionEmergencyShutdown(args))
         self.actions.append(ActionNormalShutdown(args))
 

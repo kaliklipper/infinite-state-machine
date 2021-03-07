@@ -3,14 +3,16 @@
         "tables": [
             "CREATE TABLE properties (property TEXT NOT NULL COMMENT 'A property', value TEXT COMMENT 'The value of the property' )",
             "CREATE TABLE actions ( id INTEGER NOT NULL AUTO_INCREMENT, action TEXT COMMENT 'The textual name. e.g. ActionConfirmReadyToRun', execution_phase TEXT NOT NULL COMMENT 'The execution phase this action is valid in', payload TEXT COMMENT 'Any payload required for action', active BOOLEAN NOT NULL DEFAULT '0' COMMENT 'Is this action active or not?',  PRIMARY KEY(id) )",
-            "CREATE TABLE phases ( id INTEGER NOT NULL AUTO_INCREMENT, state BOOLEAN DEFAULT '0' COMMENT 'phase is active or not', execution_phase TEXT NOT NULL COMMENT 'Textual name', note TEXT COMMENT 'Note explaining what this phase is for',\n PRIMARY KEY(id) )"
+            "CREATE TABLE phases ( id INTEGER NOT NULL AUTO_INCREMENT, state BOOLEAN DEFAULT '0' COMMENT 'phase is active or not', execution_phase TEXT NOT NULL COMMENT 'Textual name', note TEXT COMMENT 'Note explaining what this phase is for',\n PRIMARY KEY(id) )",
+            "CREATE TABLE timers (id INTEGER NOT NULL AUTO_INCREMENT, active BOOLEAN DEFAULT '0' COMMENT 'Set to 1 if active', action TEXT NOT NULL COMMENT 'The name of the action to run after expiry', payload TEXT COMMENT 'Any payload required for the action to run after expiry', expiry INTEGER NOT NULL COMMENT 'The time in epoch seconds this timer expires',  PRIMARY KEY(id))"
         ]
     },
     "sqlite3": {
         "tables": [
             "CREATE TABLE properties (\nproperty TEXT NOT NULL, -- A property\nvalue TEXT -- The value of the property\n)",
             "CREATE TABLE actions (\nid INTEGER NOT NULL PRIMARY KEY,\naction TEXT, -- The textual name. e.g. ActionConfirmReadyToRun\nexecution_phase TEXT NOT NULL DEFAULT 'STARTUP', -- The execution phase this action is valid in\npayload TEXT, -- Any payload required for action\nactive BOOLEAN NOT NULL DEFAULT '0' -- Is this action active or not?\n)",
-            "CREATE TABLE phases (\nid INTEGER NOT NULL PRIMARY KEY,\nstate BOOLEAN DEFAULT '0', -- phase is active or not\nexecution_phase TEXT NOT NULL, -- Textual name\nnote TEXT -- Note explaining what this phase is for\n)"
+            "CREATE TABLE phases (\nid INTEGER NOT NULL PRIMARY KEY,\nstate BOOLEAN DEFAULT '0', -- phase is active or not\nexecution_phase TEXT NOT NULL, -- Textual name\nnote TEXT -- Note explaining what this phase is for\n)",
+            "CREATE TABLE timers (\nid INTEGER NOT NULL PRIMARY KEY,\nactive BOOLEAN DEFAULT '0', -- Set to 1 if active\naction TEXT, -- The name of the action to run after expiry\npayload TEXT, -- Any payload required for the action to run after expiry\nexpiry INTEGER NOT NULL -- The time in epoch seconds this timer expires\n)"
         ]
     }
 }

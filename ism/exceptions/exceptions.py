@@ -49,6 +49,7 @@ class OrphanedSemaphoreFile(Exception):
         self.message = message
         super().__init__(self.message)
 
+
 class PropertyKeyNotRecognised(Exception):
 
     def __init__(self, message='Property Key not recognised'):

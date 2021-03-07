@@ -2,6 +2,7 @@
 
 """
 import logging
+import time
 
 from ism.exceptions.exceptions import DuplicateDataInControlDatabase, MissingDataInControlDatabase, \
     ExecutionPhaseNotFound, ExecutionPhaseUnrecognised
@@ -75,6 +76,10 @@ class BaseAction:
 
         self.dao.execute_sql_statement(sql, params)
 
+    @staticmethod
+    def get_epoch_milliseconds() -> int:
+        return int(time.time()*1000.0)
+
     def get_payload(self) -> list:
         """Get the payload for the child action"""
 
@@ -86,7 +91,7 @@ class BaseAction:
             (self.action_name,)
         )
 
-    def set_execution_phase(self, execution_phase):
+    def set_execution_phase(self, execution_phase: str):
 
         if execution_phase not in ["STARTING", 'RUNNING', 'EMERGENCY_SHUTDOWN', 'NORMAL_SHUTDOWN', 'STOPPED']:
             raise ExecutionPhaseUnrecognised(f'Unrecognised execution_phase - ({execution_phase}).')
@@ -99,6 +104,42 @@ class BaseAction:
             f'UPDATE phases SET state = ? WHERE execution_phase = ?;'
         )
         self.dao.execute_sql_statement(sql, (True, execution_phase))
+
+    def set_payload(self, action: str, payload: str):
+        """Set the payload for the action named in the params.
+
+        :param action The name of the action to trigger.
+        :param payload JSON payload for the action.
+        """
+        sql = self.dao.prepare_parameterised_statement(
+            'UPDATE actions SET payload = ? WHERE action = ?'
+        )
+        self.dao.execute_sql_statement(
+            sql,
+            (
+                payload,
+                action
+            )
+        )
+
+    def set_timer(self, action: str, payload: str, expiry: int):
+        """Set a timer to trigger an action after expiry
+        :param action The name of the action to trigger.
+        :param payload JSON payload for the action.
+        :param expiry Time in epoch milliseconds that the timer will expire,
+        """
+
+        sql = self.dao.prepare_parameterised_statement(
+            'UPDATE timers SET action = ?, payload = ?, expiry = ?'
+        )
+        self.dao.execute_sql_statement(
+            sql,
+            (
+                action,
+                payload,
+                expiry
+            )
+        )
 
     # Private methods
     def __get_execution_phase(self) -> str:

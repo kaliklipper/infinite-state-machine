@@ -41,7 +41,9 @@ class TestISM(unittest.TestCase):
             return yaml.safe_load(file)
 
     @staticmethod
-    def SendTestSupportMsg(msg, sender_id, inbound):
+    def send_test_support_msg(msg, inbound):
+
+        sender_id = msg['payload']['sender_id']
 
         if not os.path.exists(inbound):
             os.makedirs(inbound)
@@ -157,7 +159,7 @@ class TestISM(unittest.TestCase):
                 "sender_id": 1
             }
         }
-        self.SendTestSupportMsg(message, message['payload']['sender_id'], inbound)
+        self.send_test_support_msg(message, inbound)
 
         # Wait for the reply
         self.assertTrue(
@@ -218,7 +220,7 @@ class TestISM(unittest.TestCase):
                 "sender_id": 1
             }
         }
-        self.SendTestSupportMsg(message, message['payload']['sender_id'], inbound)
+        self.send_test_support_msg(message, inbound)
 
         # Wait for the reply
         self.assertTrue(
@@ -268,6 +270,8 @@ class TestISM(unittest.TestCase):
         self.assertTrue(os.path.exists(test_file))
         with open(test_file, 'r') as file:
             self.assertTrue(len(file.readlines()) == 1, f'Unexpected line count for {test_file}, 1 expected.')
+
+#     TODO Write unit test for timer to run NORMAL_SHUTDOWN
 
 
 if __name__ == '__main__':
