@@ -1,0 +1,12 @@
+{
+    "mysql": {
+        "inserts": [
+            "INSERT INTO timers VALUES(NULL,1,'ActionNormalShutdown','{\"test_msg\": \"test value\"}',289671489)"
+        ]
+    },
+    "sqlite3": {
+        "inserts": [
+            "INSERT INTO timers VALUES(NULL,1,'ActionNormalShutdown','{\"test_msg\": \"test value\"}',289671489)"
+        ]
+    }
+}

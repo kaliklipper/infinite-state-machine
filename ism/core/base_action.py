@@ -141,6 +141,26 @@ class BaseAction:
             )
         )
 
+    @staticmethod
+    def set_timer_expiry(hours=None, seconds=None, milliseconds=None) -> int:
+        """Calculate the expiry time for a timer, offset from now
+
+        :param hours The interval expressed in hours
+        :param seconds The interval expressed in seconds
+        :param milliseconds The interval expressed in milliseconds
+        :return Expiry time in milliseconds
+        """
+
+        if hours:
+            return int((time.time() * 1000) + (hours * 60 * 60 * 1000))
+        elif seconds:
+            seconds *= 1000
+            return int((time.time() * 1000) + seconds)
+        elif milliseconds:
+            return int((time.time() * 1000) + milliseconds)
+        else:
+            raise RuntimeError('Duration expected but got None')
+
     # Private methods
     def __get_execution_phase(self) -> str:
         """Get the current active execution phase.

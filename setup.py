@@ -15,7 +15,7 @@ setuptools.setup(
     packages=setuptools.find_packages(),
     package_data={
         'ism.core': ['*.json'],
-        'ism.tests.test_action_pack': ['*.json'],
+        'ism.tests.test_import_action_pack': ['*.json'],
         'ism.tests.support': ['*.json']
     },
     classifiers=[

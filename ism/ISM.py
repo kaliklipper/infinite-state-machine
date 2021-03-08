@@ -335,7 +335,7 @@ class ISM:
                     inserts = json.load(statements)
                     for insert in inserts[self.properties['database']['rdbms'].lower()]['inserts']:
                         self.dao.execute_sql_statement(insert)
-                inserts_found = True
+                    inserts_found = True
 
             if not inserts_found:
                 raise MalformedActionPack(f'No insert statements found for action pack ({package})')

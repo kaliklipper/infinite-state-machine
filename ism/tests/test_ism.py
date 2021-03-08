@@ -171,18 +171,22 @@ class TestISM(unittest.TestCase):
         with open(f'{outbound}{os.path.sep}1.json', 'r') as file:
             actions = json.loads(file.read())
 
-        # ActionConfirmReadyToRun should be inactive
-        self.assertEqual(
-            0,
-            actions['query_result'][0][4],
-            'ActionConfirmReadyToRun should be inactive'
-        )
-        # ActionProcessInboundMessages should be active
-        self.assertEqual(
-            1,
-            actions['query_result'][4][4],
-            'ActionProcessInboundMessages should be active'
-        )
+            for action in actions['query_result']:
+                if action[1] == 'ActionConfirmReadyToRun':
+                    # ActionConfirmReadyToRun should be inactive
+                    self.assertEqual(
+                        0,
+                        action[4],
+                        'ActionConfirmReadyToRun should be inactive'
+                    )
+
+                if action[1] == 'ActionProcessInboundMessages':
+                    # ActionProcessInboundMessages should be active
+                    self.assertEqual(
+                        1,
+                        action[4],
+                        'ActionProcessInboundMessages should be active'
+                    )
 
         # End of test
         ism.stop()
@@ -232,18 +236,22 @@ class TestISM(unittest.TestCase):
         with open(f'{outbound}{os.path.sep}1.json', 'r') as file:
             actions = json.loads(file.read())
 
-        # ActionConfirmReadyToRun should be inactive
-        self.assertEqual(
-            0,
-            actions['query_result'][0][4],
-            'ActionConfirmReadyToRun should be inactive'
-        )
-        # ActionProcessInboundMessages should be active
-        self.assertEqual(
-            1,
-            actions['query_result'][4][4],
-            'ActionProcessInboundMessages should be active'
-        )
+            for action in actions['query_result']:
+                if action[1] == 'ActionConfirmReadyToRun':
+                    # ActionConfirmReadyToRun should be inactive
+                    self.assertEqual(
+                        0,
+                        action[4],
+                        'ActionConfirmReadyToRun should be inactive'
+                    )
+
+                if action[1] == 'ActionProcessInboundMessages':
+                    # ActionProcessInboundMessages should be active
+                    self.assertEqual(
+                        1,
+                        action[4],
+                        'ActionProcessInboundMessages should be active'
+                    )
 
         # End of test
         ism.stop()
@@ -262,7 +270,7 @@ class TestISM(unittest.TestCase):
             'properties_file': self.sqlite3_properties
         }
         ism = ISM(args)
-        ism.import_action_pack('ism.tests.test_action_pack')
+        ism.import_action_pack('ism.tests.test_import_action_pack')
         ism.start()
         sleep(1)
         ism.stop()
@@ -271,7 +279,27 @@ class TestISM(unittest.TestCase):
         with open(test_file, 'r') as file:
             self.assertTrue(len(file.readlines()) == 1, f'Unexpected line count for {test_file}, 1 expected.')
 
-#     TODO Write unit test for timer to run NORMAL_SHUTDOWN
+    def test_timer_action(self):
+        """Test the timer action ActionCheckTimers.
+
+        Import an action pack with no actions but a single data.json file containing a single insert
+        into the timer table. This insert:
+
+        INSERT INTO timers VALUES(NULL,1,'ActionNormalShutdown','{"test_msg": "test value"}',289671489)
+
+        Sets a timer that expired in 1979 that triggers a normal shutdown. Test confirms shutdown happens as expected
+        or hangs indefinitely.
+        """
+
+        args = {
+            'properties_file': self.sqlite3_properties
+        }
+        ism = ISM(args)
+        ism.import_action_pack('ism.tests.test_timer_action')
+        # Test will run indefinitely if timer doesn't fire
+        ism.start(join=True)
+        # Assert true to give us a passed test because we reached here
+        self.assertTrue(True)
 
 
 if __name__ == '__main__':

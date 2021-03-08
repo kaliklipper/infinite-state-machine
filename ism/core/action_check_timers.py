@@ -22,7 +22,7 @@ class ActionCheckTimers(BaseAction):
 
             epoch_millis = self.get_epoch_milliseconds()
             sql = self.dao.prepare_parameterised_statement(
-                f'SELECT action, payload, expiry FROM timers WHERE active = ?'
+                f'SELECT action, payload, expiry, id FROM timers WHERE active = ?'
             )
             # Check if active timer/s have expired
             for timer in self.dao.execute_sql_query(sql, (True,)):
@@ -30,3 +30,8 @@ class ActionCheckTimers(BaseAction):
                     # Timer has expired so enable the action
                     self.set_payload(timer[0], timer[1])
                     self.activate(timer[0])
+                    # Deactivate the timer in the DB
+                    sql = self.dao.prepare_parameterised_statement(
+                        f'UPDATE timers SET active = 0 WHERE id = ?'
+                    )
+                    self.dao.execute_sql_statement(sql, (timer[3],))

@@ -24,8 +24,7 @@
             "INSERT INTO phases VALUES(NULL,0,'NORMAL_SHUTDOWN','Phase is shutting down normally')",
             "INSERT INTO phases VALUES(NULL,0,'RUNNING','Phase is running')",
             "INSERT INTO phases VALUES(NULL,1,'STARTING','Phase is starting')",
-            "INSERT INTO phases VALUES(NULL,0,'STOPPED','Phase is stopped')",
-            "INSERT INTO timers VALUES(NULL,1,'ActionNormalShutdown','{\"test_msg\": \"test value\"}',289671489)"
+            "INSERT INTO phases VALUES(NULL,0,'STOPPED','Phase is stopped')"
         ]
     }
 }
