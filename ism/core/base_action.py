@@ -36,7 +36,9 @@ class BaseAction:
             raise MissingDataInControlDatabase(message)
 
         try:
+            # If the action is set to active
             if this_action[0][0]:
+                # If the execution phase for the child matches the current phase
                 if this_action[0][1] == phase or this_action[0][1] == 'ALL':
                     return True
             return False

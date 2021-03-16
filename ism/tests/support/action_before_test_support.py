@@ -37,6 +37,5 @@ class ActionBeforeTestSupport(BaseAction):
                 self.logger.error(f'Failed to create directory for test support actions. OSError ({e})')
                 raise
 
-            self.activate('ActionInboundMsg')
-            self.activate('ActionOutboundMsg')
+            self.activate('ActionInboundTestMsg')
             self.deactivate()

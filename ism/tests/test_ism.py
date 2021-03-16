@@ -18,12 +18,10 @@ import json
 import os
 import re
 import unittest
+import yaml
 
 # Local application imports
 from time import sleep
-
-import yaml
-
 from ism.ISM import ISM
 
 

@@ -8,7 +8,7 @@ class ActionConfirmReadyToRun(BaseAction):
     """Check if we're ready to run and if so, change state.
 
     Ready if:
-        All BEFORE actions (if any) have completed.
+        All ActionBefore actions (if any) have completed.
     """
 
     def execute(self):
@@ -16,7 +16,7 @@ class ActionConfirmReadyToRun(BaseAction):
         if self.active():
 
             sql = self.dao.prepare_parameterised_statement(
-                f'SELECT action FROM actions WHERE action LIKE "%Before%" AND active = ?'
+                f'SELECT action FROM actions WHERE action LIKE "ActionBefore%" AND active = ?'
             )
             records = self.dao.execute_sql_query(sql, (True,))
             if len(records) > 0:

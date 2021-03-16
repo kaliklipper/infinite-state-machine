@@ -6,7 +6,7 @@ database:
 logging:
   file: ism.log
   level: debug
-  propagate: false
+  propagate: True
 
 runtime:
   root_dir: /tmp/ism

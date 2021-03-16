@@ -78,7 +78,7 @@ class MySqlDAO(DAOInterface):
             if self.raise_on_sql_error:
                 raise err
 
-    def open_connection(self, *args) -> mysql.connector.connection_cext.CMySQLConnection:
+    def open_connection(self, *args):
         """Opens a database connection.
 
             * MYSQL Creates a database in the MySql RDBMS.
