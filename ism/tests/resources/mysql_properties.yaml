@@ -1,21 +1,36 @@
 database:
+  # The RDBMS used - mysql or sqlite3
   rdbms: mysql
+  # The name in SQLITE3 and the root of the name in MySql
   db_name: ism
+  # Optional login details
   host: localhost
   user: state_admin
+  # Throw an exception on SQL errors instead of catching them
   raise_on_sql_error: True
 
 logging:
+  # The log is created beneath the runtime directory
   file: ism.log
+  # error, info, warning or debug
   level: debug
+  # Log messages appear on STDOUT
   propagate: True
 
 runtime:
+  # The root directory under which all tagged run directories are created
   root_dir: /tmp/ism
+  # User defined tag
+  tag: user
+  # Epoch millis or epoch_seconds. Must be millis for the unit tests to succeed
   sys_tag_format: epoch_milliseconds
 
 test:
+  # The optional Test Support Action Pack to allow the unit tests to query the run DB
   support:
+    # Inbound Message Files
     inbound: /tmp/ism/test_support/inbound
+    # Replies from the action pack
     outbound: /tmp/ism/test_support/outbound
+    # Inbound Messages moved here after processing
     archive: /tmp/ism/test_support/archive

@@ -61,7 +61,7 @@ class ISM:
         self.properties['database']['password'] = args[0].get('database', {}).get('password', None)
         self.properties['database']['db_path'] = None
         self.properties['runtime']['run_timestamp'] = self.__create_run_timestamp()
-        self.properties['runtime']['tag'] = args[0].get('tag', 'default')
+        self.properties['runtime']['tag'] = self.properties['runtime'].get('tag', 'default')
         self.properties['running'] = False
         self.ism_thread = None
         self.actions = []
