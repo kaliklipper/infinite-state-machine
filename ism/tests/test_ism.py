@@ -88,18 +88,6 @@ class TestISM(unittest.TestCase):
             f'Unexpected result for database: key read from properties file ({self.sqlite3_properties})'
         )
 
-    def test_user_tag(self):
-        """User can set the 'User Tag' to something other than 'default'."""
-
-        args = {
-            'properties_file': self.sqlite3_properties,
-            'tag': 'test_tag'
-        }
-        ism = ISM(args)
-        ism.start()
-        sleep(3)
-        self.assertIn('test_tag', ism.get_database_name())
-
     def test_sqlite3_database_creation(self):
         """Test that the sqlite3 database is created.
 

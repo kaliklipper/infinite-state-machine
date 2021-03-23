@@ -17,6 +17,7 @@ import inspect
 import json
 import logging
 import os
+import secrets
 import threading
 import time
 import yaml
@@ -30,6 +31,7 @@ from .core.action_normal_shutdown import ActionNormalShutdown
 from .core.action_emergency_shutdown import ActionEmergencyShutdown
 from .core.action_confirm_ready_to_run import ActionConfirmReadyToRun
 from .core.action_confirm_ready_to_stop import ActionConfirmReadyToStop
+from .core.base_action import BaseAction
 
 
 class ISM:
@@ -75,6 +77,21 @@ class ISM:
         self.__insert_core_data()
         self.__import_core_actions()
 
+        # Create the security token?
+        try:
+            num_bytes = self.properties.get('security', {}).get('token_bytes', 16)
+            BaseAction.security_token = {
+                'token_bytes': secrets.token_bytes,
+                'token_hex': secrets.token_hex,
+                'token_urlsafe': secrets.token_urlsafe
+            }[self.properties.get('security', {}).get('token_type', None)](num_bytes)
+        except KeyError as err:
+            self.logger.warning(
+                f'Error reading security token settings from properties: ({err})'
+            )
+        except TypeError as err:
+            self.logger.warning(f'unrecognised token type ({err}')
+
     # Private methods
     def __create_core_schema(self):
         """Create the core schema
@@ -95,9 +112,8 @@ class ISM:
                 'mysql': self.__create_mysql
             }[rdbms.lower()]()
         except KeyError:
+            self.logger.error(f'RDBMS {rdbms} not recognised / supported')
             raise RDBMSNotRecognised(f'RDBMS {rdbms} not recognised / supported')
-        except Exception:
-            raise
 
     def __create_mysql(self):
         """Create the Mysql database for the run."""
