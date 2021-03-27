@@ -353,8 +353,8 @@ class ISM:
         Caller has the option to run the thread as a daemon or to join() it.
         """
 
-        self.logger.info('Starting run() thread')
         self.ism_thread = threading.Thread(target=self.__run, daemon=True)
+        self.logger.info(f'Starting run() thread {self.ism_thread.name}')
         self.ism_thread.start()
         if join:
             self.ism_thread.join()
