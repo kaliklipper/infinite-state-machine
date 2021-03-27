@@ -53,3 +53,6 @@
       - [ ] Bug Reports
     - [ ] Third Party Packages
     - [ ] Unit Tests
+
+# Refactoring
+- [ ] Remove unnecessary passing of properties to DAO objects?

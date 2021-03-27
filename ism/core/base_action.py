@@ -14,7 +14,7 @@ class BaseAction:
         self.action_name = self.__class__.__name__
         self.dao = args[0]['dao']
         self.properties = args[0]['properties']
-        self.logger = logging.getLogger(f'{self.action_name}')
+        self.logger = logging.getLogger(self.action_name)
 
     def active(self) -> bool:
         """Test if the child action is activated"""

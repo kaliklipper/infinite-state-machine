@@ -25,12 +25,6 @@ runtime:
   # Epoch millis or epoch_seconds. Must be millis for the unit tests to succeed
   sys_tag_format: epoch_milliseconds
 
-security:
-  # Using secrets package so can be one of: token_bytes, token_hex or token_urlsafe
-  token_type: token_hex
-  # Length of the token
-  token_bytes: 32
-
 test:
   # The optional Test Support Action Pack to allow the unit tests to query the run DB
   support:
