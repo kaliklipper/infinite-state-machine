@@ -193,18 +193,22 @@ class ISM:
 
         except KeyError:
             raise PropertyKeyNotRecognised()
-        except Exception:
-            raise
 
-        self.logger = logging.getLogger()
-        self.logger.setLevel(log_level)
+        # Configure the root logger
+        self.root_logger = logging.getLogger()
+        self.root_logger.setLevel(log_level)
+
+        # File handler for the root logger
         formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
         fh = logging.FileHandler(self.properties["logging"]["file"], 'w')
         fh.setFormatter(formatter)
-        self.logger.addHandler(fh)
+        self.root_logger.addHandler(fh)
 
-        # Suppress propagation to STDOUT
-        self.logger.propagate = self.properties.get('logging', {}).get('propagate', False)
+        # Suppress propagation to STDOUT?
+        self.root_logger.propagate = self.properties.get('logging', {}).get('propagate', False)
+
+        # Now create the ISM logger and inherit from the root logger
+        self.logger = logging.getLogger('ism')
 
     def __get_properties(self) -> dict:
         """Read in the properties file passed into the constructor."""
