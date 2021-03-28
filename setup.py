@@ -4,8 +4,8 @@ with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
 
 setuptools.setup(
-    name="python-state-machine-kaliklipper",
-    version="0.1.12",
+    name="infinite-state-machine",
+    version="0.1.1",
     author="kaliklipper",
     author_email="kaliklipper@gmail.com",
     description="An Infinite State Machine",

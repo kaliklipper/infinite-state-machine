@@ -2,7 +2,7 @@
 venv/
 build/
 dist/
-python_state_machine_kaliklipper.egg-info/
+infinite_state_machine.egg-info/
 ./setup.py
 ism/__pycache__/
 ism/tests/__pycache__/
