@@ -11,7 +11,7 @@ setuptools.setup(
     description="An Infinite State Machine",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/kaliklipper/python-state-machine",
+    url="https://github.com/kaliklipper/infinite-state-machine",
     packages=setuptools.find_packages(),
     package_data={
         'ism.core': ['*.json'],
