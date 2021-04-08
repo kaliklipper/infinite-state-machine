@@ -1,37 +1,36 @@
-## Welcome to GitHub Pages
+# Welcome to the Infinite State Machine GitHub Pages
+## Introduction
 
-You can use the [editor on GitHub](https://github.com/kaliklipper/infinite-state-machine/edit/gh-pages/index.md) to maintain and preview the content for your website in Markdown files.
+Are you familiar with Finite State Machines? If so, then you should find this project interesting ...
 
-Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
+Finite State Machines are the best paradigm for code that handles multiple streams of asynchronous events. So much so that the operating system displaying the browser you are viewing this page on is implemented as a state machine. that's why it can handle so many asynchronous events, such as alerting you to the arrival of an email or handling a mouse click.
 
-### Markdown
+So why an _infinite_ state machine? 
 
-Markdown is a lightweight and easy-to-use syntax for styling your writing. It includes conventions for
+The ISM project intended to support rapid development by implementing "Action Packs" – Python Modules – that can be imported into the state machine. So if you want to create a state machine that can Implement:
 
-```markdown
-Syntax highlighted code block
+- an HTTPS API.
+- a message Q handler.
+- a motor controller.
+- environmental management.
 
-# Header 1
-## Header 2
-### Header 3
+Then you can import or develop your own action packs to do just that. _So there is theoretically no limit on the number of states the ISM can express_.
 
-- Bulleted
-- List
+As time progresses and the number of action packs available increases through third party developers, you should be able to put together a state machine to handle your requirements with little more than a few import statements and a little config.
 
-1. Numbered
-2. List
+---
+## Collaboration
+This project is going to make a determined effort to attract conributors. The ISM is such a powerful and flexible concept that it really is worthy of getting a community behind it. In fact, building such a community is the only way of ensuring that the proliferation of specialised action packs takes place.
 
-**Bold** and _Italic_ and `Code` text
+Asynchronous event handling is a requirement across many disciplines and the implementation of a light weight, RAD supporting framework for creating state machines should find widespread acceptance across many industries such as:
 
-[Link](url) and ![Image](src)
-```
+- Factory Automation.
+- Machine controllers.
+- Operating Systems.
+- Systems Monitoring.
+- CI / CD pipelines.
 
-For more details see [GitHub Flavored Markdown](https://guides.github.com/features/mastering-markdown/).
+With its small form factor, yet powerful event handling mechanism, the ISM can be implemented on tiny platforms like an Arduino or a Rapsberry PI, through to a full blown microservice architecture hosted in the cloud.
 
-### Jekyll Themes
-
-Your Pages site will use the layout and styles from the Jekyll theme you have selected in your [repository settings](https://github.com/kaliklipper/infinite-state-machine/settings). The name of this theme is saved in the Jekyll `_config.yml` configuration file.
-
-### Support or Contact
-
-Having trouble with Pages? Check out our [documentation](https://docs.github.com/categories/github-pages-basics/) or [contact support](https://support.github.com/contact) and we’ll help you sort it out.
+The only limit is our imaginations ...
+---
